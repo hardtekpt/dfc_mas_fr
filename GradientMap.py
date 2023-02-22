@@ -1,29 +1,41 @@
 #!/usr/bin/env python3
 
 import numpy as np
-
+import matplotlib.pyplot as plt
 class GradientMap():
 
-    def __init__(self, file:str):
-        f = open(file, "r")
-        params = f.readline()
-        f.close()
-        params = params.split(" ")[1]
-
-        self.map_dimensions = np.asarray([float(params.split(",")[0]), float(params.split(",")[1])])
-        self.grid_size = float(params.split(",")[2])
-
-        self.grid_dimensions = self.map_dimensions / self.grid_size
-        self.map = np.loadtxt(fname=file, comments=None, skiprows=1, delimiter=',')
+    def __init__(self, dimensions:np.ndarray((2,)) = np.asarray([4, 7])):
+        
+        self.dimensions = dimensions
+        self.map = {'hiperboloid': [], 'obstacles': []}
 
     def add_hiperboloid(self, center:np.ndarray((2,)), params:np.ndarray((4,))):
-        pass
+
+        hiperboloid = {'center': center, 'params': params}
+        self.map['hiperboloid'].append(hiperboloid)
 
     def add_obstacle(self, position:np.ndarray((2,)) = np.asarray([0, 0]), size:np.ndarray((2,)) = np.asarray([0.5, 0.5]), random:bool = False):
-        pass
+        
+        obstacle = {'pos': position, 'size': size}
+        self.map['obstacles'].append(obstacle)
 
     def show(self):
-        pass
+
+        color_map = plt.get_cmap('viridis')
+        color_map.set_bad(color='black')
+
+        masked_array = np.ma.masked_where(self.map == -2000, self.map)
+        plt.imshow(masked_array, cmap=color_map)
+
+        plt.xlabel("x axis")
+        plt.ylabel("y axis")
+        ax = plt.gca()
+        ax.set_xticks(np.arange(0, self.map.shape[1], 5))
+        ax.set_xticklabels(np.arange(0, self.map.shape[1], 5)*self.grid_size)
+        ax.set_yticks(np.arange(0, self.map.shape[0], 5))
+        ax.set_yticklabels(np.arange(0, self.map.shape[0], 5)*self.grid_size)
+        plt.colorbar()
+        plt.show()
 
     def export(self, name:str):
         pass
@@ -47,6 +59,7 @@ class GradientMap():
 
 if __name__ == "__main__":
 
-    map = GradientMap(file="test_map.csv")
+    map_dimensions = np.asarray([4, 7])
+    map = GradientMap(dimensions=map_dimensions)
 
     map.show()
