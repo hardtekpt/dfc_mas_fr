@@ -23,6 +23,7 @@ class GradientMap():
         self.map['hiperboloids'].append(hiperboloid)
 
     def add_obstacle(self, position:np.ndarray((2,)) = np.asarray([0.0, 0.0]), size:np.ndarray((2,)) = np.asarray([0.5, 0.5]), random:bool = False):
+        
         if random:
             position[0] = np.random.uniform(0,self.dimensions[0] - size[0])
             position[1] = np.random.uniform(0,self.dimensions[1] - size[1])
@@ -71,6 +72,7 @@ class GradientMap():
         plt.show()
 
     def export(self, name:str):
+
         with open(name, 'w', newline='') as file:
             writer = csv.writer(file, delimiter=',')
 
@@ -83,6 +85,7 @@ class GradientMap():
                 writer.writerow([obstacle['pos'][0], obstacle['pos'][1], obstacle['size'][0], obstacle['size'][1]])
 
     def import_map(self, name:str):
+
         with open(name, 'r', newline='') as file:
             reader = csv.reader(file, delimiter=',')
             line_count = 0
