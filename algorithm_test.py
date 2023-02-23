@@ -8,12 +8,6 @@ sys.path.insert(0, dirname(dirname(abspath(__file__))))
 from pycrazyswarm import *
 import matplotlib.pyplot as plt
 
-
-
-             
-    
-
-
 Z = 1.0
 sleepRate = 30
 
@@ -42,9 +36,6 @@ if __name__ == "__main__":
     swarm = Crazyswarm(crazyflies_yaml=crazyflies_yaml)
     timeHelper = swarm.timeHelper
     allcfs = swarm.allcfs
-
-    #algorithm = dfc_mas_fr(number_of_agents=10, sensing_radius=5)
-    #algorithm.create_utility_function()
 
     allcfs.takeoff(targetHeight=Z, duration=1.0+Z)
     timeHelper.sleep(2 + Z)
