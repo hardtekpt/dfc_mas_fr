@@ -5,15 +5,10 @@ from GradientMap import GradientMap
 import math
 
 class Algorithm:
-    def __init__(self, number_of_agents: int, sensing_radius: float, map: GradientMap, control_weights: np.ndarray((6,))):
-        self.number_of_agents = number_of_agents
+    def __init__(self, sensing_radius: float, map: GradientMap, control_weights: np.ndarray((6,))):
         self.sensing_radius = sensing_radius
         self.map = map
         self.control_weights = control_weights
-
-    def run(self):
-        # run the algorithm, calculate heading for each vehicle each time step
-        pass
 
     def update_movement(self, agent_index: int, current_positions: np.ndarray, current_velocities: np.ndarray, distribution) -> np.ndarray((2,)):
 
