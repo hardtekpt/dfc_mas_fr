@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="name" default="node"/>
+    <arg name="id" default="-1"/>
+    <arg name="sim" default="true"/>
+    
+    <group if="$(arg sim)">
+        <node pkg="dfc_mas_fr" type="Node.py" name="$(arg name)" output="screen" args="$(arg id)">
+            
+        </node>
+    </group>
+    <group if="$(eval sim == 'false')">
+        <node pkg="dfc_mas_fr" type="Node.py" name="$(arg name)" output="screen" args="$(arg id)">
+            
+        </node>
+    </group>
+</launch>

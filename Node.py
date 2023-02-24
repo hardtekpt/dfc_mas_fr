@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
 
 import rospy
-from std_msgs.msg import String
+from geometry_msgs.msg import Twist
 import sys
-from os.path import dirname, abspath
-sys.path.insert(0, dirname(dirname(abspath(__file__)))+"/crazyswarm/scripts")
-print(dirname(dirname(abspath(__file__)))+"/crazyswarm/scripts")
 
-from pycrazyswarm import *
 
-def Node():
-    pub = rospy.Publisher('chatter', String, queue_size=10)
-    rospy.init_node('talker', anonymous=True)
+def Node(id:int):
+    pub_vel = rospy.Publisher('node'+str(id)+'/vel_cmd', Twist, queue_size=10)
+    rospy.init_node('node'+str(id))
+
     rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
-        hello_str = "hello world %s" % rospy.get_time()
-        rospy.loginfo(hello_str)
-        pub.publish(hello_str)
+        v = Twist()
+        v.linear.x = 1
+        v.linear.y = 1
+        v.linear.z = 1
+        pub_vel.publish(v)
         rate.sleep()
 
 if __name__ == '__main__':
     try:
-        Node()
+        Node(int(sys.argv[1]))
     except rospy.ROSInterruptException:
         pass

@@ -10,6 +10,8 @@ project(dfc_mas_fr)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
+  geometry_msgs
+  vizualization_msgs
   crazyswarm
 )
 

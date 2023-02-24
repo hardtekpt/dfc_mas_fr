@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="sim" default="true"/>
+
+    <group ns="algorithm">
+        <node pkg="dfc_mas_fr" type="Publisher.py" name="publisher" output="screen" args="--sim --dt=0.05">
+            
+        </node>
+
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node1"/>
+            <arg name="id" value="1"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <!-- <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node2"/>
+            <arg name="id" value="2"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include> -->
+        <node pkg="dfc_mas_fr" type="MarkerPublisher.py" name="marker_publisher" output="screen" args="node 9">
+            
+        </node>
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dfc_mas_fr)/launch/rviz_cfg.rviz"/>
+    </group>
+</launch>
