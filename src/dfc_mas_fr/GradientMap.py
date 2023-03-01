@@ -31,7 +31,7 @@ class GradientMap():
         obstacle = {'pos': position, 'size': size}
         self.map['obstacles'].append(deepcopy(obstacle))
 
-    def show(self):
+    def show(self, block:bool = True):
         
         x = np.linspace(0, self.dimensions[1], int(self.dimensions[1]/GradientMap.DRAW_RESOLUTION))
         y = np.linspace(0, self.dimensions[0], int(self.dimensions[0]/GradientMap.DRAW_RESOLUTION))
@@ -58,6 +58,7 @@ class GradientMap():
         color_map = plt.get_cmap('viridis')
         color_map.set_bad(color='black')
 
+        plt.figure("Gradient Map")
         masked_array = np.ma.masked_where(discrete_map == GradientMap.OBSTACLE_UTILITY_VALUE, discrete_map)
         plt.imshow(masked_array, cmap=color_map)
 
@@ -69,7 +70,8 @@ class GradientMap():
         ax.set_yticks(np.arange(0, discrete_map.shape[0], 10))
         ax.set_yticklabels(np.arange(0, discrete_map.shape[0], 10)*GradientMap.DRAW_RESOLUTION)
         plt.colorbar()
-        plt.show()
+        if block:
+            plt.show()
 
     def export(self, name:str):
 
@@ -162,6 +164,8 @@ if __name__ == "__main__":
     hiperboloid_center = np.asarray([2, 3.5])
     hiperboloid_params = np.asarray([5000, 3, 3, 15])
     map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params)
+
+    map.show()
 
     hiperboloid_center = np.asarray([1, 1])
     hiperboloid_params = np.asarray([3000, 10, 10, 15])

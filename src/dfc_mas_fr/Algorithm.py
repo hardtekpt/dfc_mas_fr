@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from GradientMap import GradientMap
+from dfc_mas_fr.GradientMap import GradientMap
 import math
 
 class Algorithm:
