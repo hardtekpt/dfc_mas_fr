@@ -1,6 +1,6 @@
 crazyflies:
 - channel: 100
-  id: 1
+  id: 9
   initialPosition: [0, 0, 0.0]
   type: medium
 - channel: 100
@@ -32,6 +32,6 @@ crazyflies:
   initialPosition: [1, 2, 0.0]
   type: medium
 - channel: 100
-  id: 9
+  id: 1
   initialPosition: [2, 2, 0.0]
   type: medium

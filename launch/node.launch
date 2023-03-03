@@ -3,9 +3,10 @@
     <arg name="name" default="node"/>
     <arg name="id" default="-1"/>
     <arg name="sim" default="true"/>
+    <arg name="n_agents" default="10"/>
     
     <group if="$(arg sim)">
-        <node pkg="dfc_mas_fr" type="Node.py" name="$(arg name)" output="screen" args="$(arg id)">
+        <node pkg="dfc_mas_fr" type="Node.py" name="$(arg name)" output="screen" args="$(arg id) $(arg n_agents)">
             
         </node>
     </group>

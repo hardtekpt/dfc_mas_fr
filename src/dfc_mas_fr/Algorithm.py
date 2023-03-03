@@ -30,6 +30,9 @@ class Algorithm:
         neighbours = np.where(distribution == 1)[0]
         sum = 0
 
+        #print(current_positions)
+        #print(neighbours)
+
         for neighbour in neighbours:
             sum += current_positions[agent_index, :] - current_positions[neighbour, :]
 
@@ -90,12 +93,12 @@ class Algorithm:
         closest_slot_idx = -1
 
         for i in range(len(phis)):
-            formation_positions[:][i] = np.asarray([rho * np.cos(phis[i]), rho * np.sin(phis[i])])
-            distance = np.linalg.norm(current_positions[agent_index] - formation_positions[:][i])
+            formation_positions[:,i] = np.asarray([rho * np.cos(phis[i]), rho * np.sin(phis[i])])
+            distance = np.linalg.norm(current_positions[agent_index] - formation_positions[:,i])
             if distance < distance_to_closest_slot:
                 distance_to_closest_slot = distance
                 closest_slot_idx = i
 
-        formation = formation_positions[:][closest_slot_idx] - current_positions[agent_index]
+        formation = formation_positions[:,closest_slot_idx] - current_positions[agent_index]
 
         return formation

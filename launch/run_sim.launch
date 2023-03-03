@@ -3,6 +3,8 @@
     <arg name="sim" default="true"/>
 
     <group ns="algorithm">
+        <rosparam file="$(find dfc_mas_fr)/config/algorithm_params.yaml" />
+
         <node pkg="dfc_mas_fr" type="Publisher.py" name="publisher" output="screen" args="--sim --dt=0.25 --vis=mpl">
             
         </node>
@@ -12,11 +14,12 @@
             <arg name="id" value="1"/>
             <arg name="sim" value="$(arg sim)"/>
         </include>
-        <include file="$(find dfc_mas_fr)/launch/node.launch">
+        <!-- <include file="$(find dfc_mas_fr)/launch/node.launch">
             <arg name="name" value="node2"/>
             <arg name="id" value="2"/>
             <arg name="sim" value="$(arg sim)"/>
-        </include>
+            <arg name="n_agents" value="$(arg n_agents)"/>
+        </include> -->
         
         
         <!-- <node pkg="dfc_mas_fr" type="MarkerPublisher.py" name="marker_publisher" output="screen" args="node 9">

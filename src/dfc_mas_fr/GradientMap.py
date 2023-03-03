@@ -158,32 +158,32 @@ class GradientMap():
 
 if __name__ == "__main__":
 
-    map_dimensions = np.asarray([4, 7])
+    map_dimensions = np.asarray([20, 20])
     map = GradientMap(dimensions=map_dimensions)
 
-    hiperboloid_center = np.asarray([2, 3.5])
+    hiperboloid_center = np.asarray([5, 5])
     hiperboloid_params = np.asarray([5000, 3, 3, 15])
     map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params)
 
     map.show()
 
-    hiperboloid_center = np.asarray([1, 1])
-    hiperboloid_params = np.asarray([3000, 10, 10, 15])
-    map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params)
+    #hiperboloid_center = np.asarray([1, 1])
+    #hiperboloid_params = np.asarray([3000, 10, 10, 15])
+    #map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params)
 
-    map.add_obstacle(position=np.asarray([1,2]), size=np.asarray([0.5, 1]))
+    #map.add_obstacle(position=np.asarray([1,2]), size=np.asarray([0.5, 1]))
 
-    map.add_obstacle(random=True)
-    map.add_obstacle(random=True)
-    map.add_obstacle(random=True)
+    #map.add_obstacle(random=True)
+    #map.add_obstacle(random=True)
+    #map.add_obstacle(random=True)
 
-    map.add_obstacle(random=True, size=np.asarray([0.2,1.5]))
+    #map.add_obstacle(random=True, size=np.asarray([0.2,1.5]))
 
     #map.export(name="test_file.csv")
     #map.show()
 
-    map2 = GradientMap()
-    map2.import_map(name="test_file.csv")
+    #map2 = GradientMap()
+    #map2.import_map(name="test_file.csv")
     #map2.rm_hiperboloid(0)
-    map2.show()
+    #map2.show()
 
