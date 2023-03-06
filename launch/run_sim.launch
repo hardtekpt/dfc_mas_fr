@@ -5,7 +5,7 @@
     <group ns="algorithm">
         <rosparam file="$(find dfc_mas_fr)/config/algorithm_params.yaml" />
 
-        <node pkg="dfc_mas_fr" type="Publisher.py" name="publisher" output="screen" args="--sim --dt=0.25 --vis=mpl">
+        <node pkg="dfc_mas_fr" type="Publisher.py" name="publisher" output="screen" args="--sim --dt=0.1 --vis=mpl">
             
         </node>
 
@@ -14,18 +14,17 @@
             <arg name="id" value="1"/>
             <arg name="sim" value="$(arg sim)"/>
         </include>
-        <!-- <include file="$(find dfc_mas_fr)/launch/node.launch">
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
             <arg name="name" value="node2"/>
             <arg name="id" value="2"/>
             <arg name="sim" value="$(arg sim)"/>
-            <arg name="n_agents" value="$(arg n_agents)"/>
-        </include> -->
+        </include>
         
         
-        <!-- <node pkg="dfc_mas_fr" type="MarkerPublisher.py" name="marker_publisher" output="screen" args="node 9">
+        <node pkg="dfc_mas_fr" type="MarkerPublisher.py" name="marker_publisher" output="screen" args="node 9">
             
-        </node> -->
+        </node>
 
-        <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dfc_mas_fr)/launch/rviz_cfg.rviz"/> -->
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dfc_mas_fr)/launch/rviz_cfg.rviz"/>
     </group>
 </launch>

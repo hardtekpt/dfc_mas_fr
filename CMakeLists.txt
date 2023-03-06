@@ -23,7 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -50,17 +50,18 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  Obstacle.msg
+  Hiperboloid.msg
+)
 
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
   GetUtilityValue.srv
   Commander.srv
+  Map.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -74,6 +75,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
+  dfc_mas_fr
 )
 
 ################################################
@@ -162,14 +164,16 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-catkin_install_python(PROGRAMS
-  scripts/Publisher.py
-  src/dfc_mas_fr/Algorithm.py
-  src/dfc_mas_fr/GradientMap.py
-  scripts/Node.py
-  scripts/MarkerPublisher.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# catkin_install_python(PROGRAMS
+#   scripts/Publisher.py
+#   src/dfc_mas_fr/Algorithm.py
+#   src/dfc_mas_fr/GradientMap.py
+#   src/dfc_mas_fr/PublisherHelper.py
+#   src/dfc_mas_fr/NodeHelper.py
+#   scripts/Node.py
+#   scripts/MarkerPublisher.py
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html

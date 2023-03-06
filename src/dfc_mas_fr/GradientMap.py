@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from copy import deepcopy
 import csv
+from dfc_mas_fr.srv import Commander, Map, MapResponse
+from dfc_mas_fr.msg import Hiperboloid, Obstacle
 class GradientMap():
 
     OBSTACLE_UTILITY_VALUE = -2000
@@ -33,27 +35,7 @@ class GradientMap():
 
     def show(self, block:bool = True):
         
-        x = np.linspace(0, self.dimensions[1], int(self.dimensions[1]/GradientMap.DRAW_RESOLUTION))
-        y = np.linspace(0, self.dimensions[0], int(self.dimensions[0]/GradientMap.DRAW_RESOLUTION))
-
-        discrete_map = np.zeros((len(x),len(y)))
-        grid_dimensions = self.dimensions / GradientMap.DRAW_RESOLUTION
-
-        for hiperboloid in self.map['hiperboloids']:
-            for x_idx in range(len(x)):
-                for y_idx in range(len(y)):
-                    k = hiperboloid['params'][0]
-                    theta = hiperboloid['params'][1]
-                    thau = hiperboloid['params'][2]
-                    w = hiperboloid['params'][3]
-                    discrete_map[x_idx][y_idx] += k / ((theta * (x[x_idx] - hiperboloid['center'][1]))**2 + (thau * (y[y_idx] - hiperboloid['center'][0]))**2 + w)
-
-        for obstacle in self.map['obstacles']:
-            position_indxs = (obstacle['pos']/GradientMap.DRAW_RESOLUTION).astype(int)
-            size_indxs = (obstacle['size']/GradientMap.DRAW_RESOLUTION).astype(int)
-
-            for y_idx in range(position_indxs[1], np.min([position_indxs[1] + size_indxs[1], grid_dimensions[1]]).astype(int)):
-                discrete_map[y_idx][position_indxs[0]: np.min([position_indxs[0]+size_indxs[0], grid_dimensions[0]]).astype(int)] = GradientMap.OBSTACLE_UTILITY_VALUE
+        discrete_map = self.discretize_map(GradientMap.DRAW_RESOLUTION)
 
         color_map = plt.get_cmap('viridis')
         color_map.set_bad(color='black')
@@ -148,12 +130,78 @@ class GradientMap():
                 return i
         return -1
 
-    def check_for_obstacle_collision(position:np.ndarray((2,)), obstacle):
+    def check_for_obstacle_collision(self, position:np.ndarray((2,)), obstacle):
 
         if (position[0] >= obstacle['pos'][0]) and (position[0] <= obstacle['pos'][0] + obstacle['size'][0]):
             if (position[1] >= obstacle['pos'][1]) and (position[1] <= obstacle['pos'][1] + obstacle['size'][1]):
                 return True
         return False
+    
+    def convert_obj_to_srv(self):
+        
+        map_msg = MapResponse()
+        map_msg.map_dimensions = self.dimensions
+        map_msg.n_obs = 0
+        map_msg.n_hip = 0
+
+        for i in range(len(self.map['hiperboloids'])):
+            hip_msg = Hiperboloid()
+            hip = self.map['hiperboloids'][i]
+
+            map_msg.n_hip += 1
+            hip_msg.center = hip['center']
+            hip_msg.params = hip['params']
+            map_msg.hiperboloids.append(hip_msg)
+
+        for i in range(len(self.map['obstacles'])):
+            obs_msg = Obstacle()
+            obs = self.map['obstacles'][i]
+
+            map_msg.n_obs += 1
+            obs_msg.center = obs['pos']
+            obs_msg.params = obs['size']
+            map_msg.obstacles.append(obs_msg)
+        return map_msg
+
+    def convert_srv_to_obj(self, map_srv):
+    
+        for i in range(map_srv.n_hip):
+            hip = Hiperboloid()
+            hip = map_srv.hiperboloids[i]
+            self.add_hiperboloid(hip.center, hip.params)
+
+        for i in range(map_srv.n_obs):
+            obs = Obstacle()
+            obs = map_srv.obstacles[i]
+            self.add_obstacle(obs.pos, obs.size)
+
+    def discretize_map(self, res): 
+
+        x = np.linspace(0, self.dimensions[1], int(self.dimensions[1]/res))
+        y = np.linspace(0, self.dimensions[0], int(self.dimensions[0]/res))
+
+        discrete_map = np.zeros((len(x),len(y)))
+        grid_dimensions = np.ndarray((2,))
+        grid_dimensions[0] = self.dimensions[0] / res
+        grid_dimensions[1] = self.dimensions[1] / res
+
+        for hiperboloid in self.map['hiperboloids']:
+            for x_idx in range(len(x)):
+                for y_idx in range(len(y)):
+                    k = hiperboloid['params'][0]
+                    theta = hiperboloid['params'][1]
+                    thau = hiperboloid['params'][2]
+                    w = hiperboloid['params'][3]
+                    discrete_map[x_idx][y_idx] += k / ((theta * (x[x_idx] - hiperboloid['center'][1]))**2 + (thau * (y[y_idx] - hiperboloid['center'][0]))**2 + w)
+
+        for obstacle in self.map['obstacles']:
+            position_indxs = (obstacle['pos']/res).astype(int)
+            size_indxs = (obstacle['size']/res).astype(int)
+
+            for y_idx in range(position_indxs[1], np.min([position_indxs[1] + size_indxs[1], grid_dimensions[1]]).astype(int)):
+                discrete_map[y_idx][position_indxs[0]: np.min([position_indxs[0]+size_indxs[0], grid_dimensions[0]]).astype(int)] = GradientMap.OBSTACLE_UTILITY_VALUE
+
+        return discrete_map
         
 
 if __name__ == "__main__":

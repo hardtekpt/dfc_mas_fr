@@ -2,9 +2,13 @@
 
 import rospy
 import numpy as np
+from enum import Enum
 from geometry_msgs.msg import TwistStamped, PoseStamped, Twist, Pose
-from dfc_mas_fr.srv import Commander
+from dfc_mas_fr.srv import Commander, Map, MapResponse
+from dfc_mas_fr.msg import Hiperboloid, Obstacle
+from dfc_mas_fr.GradientMap import GradientMap
 
+CH = Enum('Commander_Handler', ['TAKEOFF', 'LAND', 'FLY', 'TAKINGOFF', 'LANDING', 'FLYING'])
 class PublisherHelper:
 
     def __init__(self, swarm):
@@ -16,48 +20,66 @@ class PublisherHelper:
         self.takeoff_and_land_duration = rospy.get_param("takeoff_and_land_duration")
         self.flying_height = rospy.get_param("flying_height")
 
+        self.pub_pos = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Publisher)
+        self.pub_vel = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Publisher)
+        self.cmd_vel_sub = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Subscriber)
+
+        self.rate = 30
+        self.first_iteration = True
+        self.last_iteration = True
+        self.commander_handler = CH.TAKEOFF
+
+        for i in range(len(self.swarm.allcfs.crazyflies)):
+            cf = self.swarm.allcfs.crazyflies[i]
+            self.pub_pos[i] = rospy.Publisher('node'+str(cf.id)+'/pose', PoseStamped, queue_size=10)
+            self.pub_vel[i] = rospy.Publisher('node'+str(cf.id)+'/twist', TwistStamped, queue_size=10)
+            self.cmd_vel_sub[i] = rospy.Subscriber('node'+str(cf.id)+'/cmd_vel', Twist, self.vel_callback, (cf,))
+
+        self.map = self.init_map()
+
     def run_algorithm(self):
 
-        pub_pos = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Publisher)
-        pub_vel = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Publisher)
-        cmd_vel_sub = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Subscriber)
-
-        rate = 30
-        first_iteration = True
-
-        for i in range(len(self.swarm.allcfs.crazyflies)):
-            cf = self.swarm.allcfs.crazyflies[i]
-            pub_pos[i] = rospy.Publisher('node'+str(cf.id)+'/pose', PoseStamped, queue_size=10)
-            pub_vel[i] = rospy.Publisher('node'+str(cf.id)+'/twist', TwistStamped, queue_size=10)
-            cmd_vel_sub[i] = rospy.Subscriber('node'+str(cf.id)+'/cmd_vel', Twist, self.vel_callback, (cf,))
-
-        # Takeoff
-        self.swarm.allcfs.takeoff(targetHeight=self.flying_height, duration=self.takeoff_and_land_duration)
-        self.th.sleep(self.takeoff_and_land_duration)
-
         init_time = self.th.time()
-        while (self.th.time()-init_time)<self.run_duration:
-            # Publish agent positions
-            self.position_publisher(pub_pos)
-            # Publish agent velocities
-            self.velocity_publisher(pub_vel)
-            self.th.sleepForRate(rate)
-            if first_iteration:
+        while (not self.th.isShutdown()):
+
+            # Publish agent positions and velocities
+            self.position_publisher(self.pub_pos)
+            self.velocity_publisher(self.pub_vel)
+
+            # Change from takeoff mode to fly mode after the takeoff duration
+            if (self.commander_handler == CH.TAKINGOFF) and ((self.th.time()-init_time)>=self.takeoff_and_land_duration):
+                self.commander_handler = CH.FLY
+
+            # Change from fly to land mode after the run duration
+            if (self.commander_handler == CH.FLYING) and (self.th.time()-init_time)>=self.run_duration+self.takeoff_and_land_duration:
+                self.commander_handler = CH.LAND
+
+            if (self.commander_handler == CH.LANDING) and (self.th.time()-init_time)>=self.run_duration+2*self.takeoff_and_land_duration:
+                break
+
+            # Send takeoff command to all cfs if in takeoff mode
+            if self.commander_handler == CH.TAKEOFF:
+                self.swarm.allcfs.takeoff(targetHeight=self.flying_height, duration=self.takeoff_and_land_duration)
+                self.commander_handler = CH.TAKINGOFF
+
+            # Stop receiving velocity commands and send land command to all cfs in land mode
+            if self.commander_handler == CH.LAND:
+                for i in range(len(self.swarm.allcfs.crazyflies)):
+                    cf = self.swarm.allcfs.crazyflies[i]
+                    self.commander(cf.id, stop=True)
+                    self.cmd_vel_sub[i].unregister()
+                    cf.cmdVelocityWorld([0, 0, 0],0)
+                self.swarm.allcfs.land(targetHeight=0.04, duration=self.takeoff_and_land_duration)
+                self.commander_handler = CH.LANDING
+
+            # Run the algorithm when in fly mode
+            if self.commander_handler == CH.FLY:
                 for cf in self.swarm.allcfs.crazyflies:
                     self.commander(cf.id, start=True)
-            first_iteration = False
+                self.commander_handler = CH.FLYING
 
-        # Stop receiving velocity commands
-        for i in range(len(self.swarm.allcfs.crazyflies)):
-            cf = self.swarm.allcfs.crazyflies[i]
-            self.commander(cf.id, stop=True)
-            cmd_vel_sub[i].unregister()
-            cf.cmdVelocityWorld([0, 0, 0],0)
-        self.th.sleep(1)
-
-        # Land
-        self.swarm.allcfs.land(targetHeight=0.04, duration=self.takeoff_and_land_duration)
-        self.th.sleep(self.takeoff_and_land_duration)
+            # Sleep for the set rate
+            self.th.sleepForRate(self.rate)
     
     def vel_callback(self, v:Twist, args):
 
@@ -92,7 +114,7 @@ class PublisherHelper:
             pos.orientation.w = 0
             pos.orientation.x = 0
             pos.orientation.y = 0
-            pos.orientation.z = 0
+            pos.orientation.z = 1
             pose.pose = pos
             pose.header.stamp.secs = int(time_s)
             pose.header.stamp.nsecs = int(time_ns)
@@ -121,3 +143,18 @@ class PublisherHelper:
             vel_stamped.header.frame_id = "map"
             vel_stamped.twist = v
             pub[i].publish(vel_stamped)
+
+    def init_map(self):
+    
+        map_dimensions = np.asarray([20, 20])
+        map = GradientMap(dimensions=map_dimensions)
+
+        hiperboloid_center = np.asarray([10, 10])
+        hiperboloid_params = np.asarray([5000, 2, 2, 15])
+        map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params)
+
+        return map
+    
+    def handle_map_srv(self, req):
+        map_msg = self.map.convert_obj_to_srv()
+        return map_msg

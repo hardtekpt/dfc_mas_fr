@@ -1,4 +1,4 @@
-number_of_agents: 1
+number_of_agents: 2
 run_duration: 20
 flying_height: 1
 takeoff_and_land_duration: 3
