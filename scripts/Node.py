@@ -7,7 +7,7 @@ import numpy as np
 from dfc_mas_fr.Algorithm import Algorithm
 from dfc_mas_fr.NodeHelper import NodeHelper
 from dfc_mas_fr.srv import Commander
-from geometry_msgs.msg import TwistStamped, PoseStamped, Twist, Pose
+from geometry_msgs.msg import Twist
 
 
 def Node(id:int):
@@ -24,7 +24,7 @@ def Node(id:int):
     map = nh.get_map()
     cw = np.asarray(rospy.get_param("control_weights"))
 
-    al = Algorithm(SR, map, cw)
+    al = Algorithm(id, SR, map, cw)
 
     while not nh.run:
         rate.sleep()
@@ -41,11 +41,11 @@ def Node(id:int):
         curr_pos = nh.corrupt_pos(curr_pos_true, 0.2)
         curr_vel = nh.corrupt_vel(curr_vel_true, 0.2)
         
-        vel = al.update_movement(id-1, curr_pos[:,0:2], curr_vel[:,0:2], curr_dist)
+        vel = al.update_movement(curr_pos[:,0:2], curr_vel[:,0:2], curr_dist)
 
         v = Twist()
-        v.linear.x = 0
-        v.linear.y = 0.1
+        v.linear.x = vel[0]
+        v.linear.y = vel[1]
         v.linear.z = 0
         pub_vel.publish(v)
         rate.sleep()

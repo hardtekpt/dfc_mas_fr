@@ -3,7 +3,7 @@
 import rospy
 import numpy as np
 from geometry_msgs.msg import TwistStamped, PoseStamped, Twist, Pose
-from dfc_mas_fr.srv import Commander, CommanderResponse
+from dfc_mas_fr.srv import Commander
 
 class PublisherHelper:
 
@@ -20,10 +20,8 @@ class PublisherHelper:
 
         pub_pos = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Publisher)
         pub_vel = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Publisher)
-
         cmd_vel_sub = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Subscriber)
-        curr_pos = np.ndarray((len(pub_pos),),Pose)
-        prev_pos = np.ndarray((len(pub_pos),),Pose)
+
         rate = 30
         first_iteration = True
 
@@ -40,12 +38,9 @@ class PublisherHelper:
         init_time = self.th.time()
         while (self.th.time()-init_time)<self.run_duration:
             # Publish agent positions
-            curr_pos = self.position_publisher(pub_pos, self.swarm)
-            if first_iteration:
-                prev_pos = curr_pos
+            self.position_publisher(pub_pos)
             # Publish agent velocities
-            self.velocity_publisher(pub_vel, curr_pos, prev_pos, 1/rate)
-            prev_pos = curr_pos
+            self.velocity_publisher(pub_vel)
             self.th.sleepForRate(rate)
             if first_iteration:
                 for cf in self.swarm.allcfs.crazyflies:
@@ -80,19 +75,20 @@ class PublisherHelper:
             #print("Service call failed: %s"%e)
             pass
 
-    def position_publisher(self, pub:rospy.Publisher, swarm):
+    def position_publisher(self, pub:rospy.Publisher):
 
         curr_pos = np.ndarray((len(pub),),Pose)
 
         for i in range(len(pub)):
-            time_s, time_d = divmod(swarm.timeHelper.time(), 1)
+            time_s, time_d = divmod(self.th.time(), 1)
             time_ns = time_d * 10**9
+            cf = self.swarm.allcfs.crazyflies[i]
 
             pose = PoseStamped()
             pos = Pose()
-            pos.position.x = swarm.allcfs.crazyflies[i].position()[0]
-            pos.position.y = swarm.allcfs.crazyflies[i].position()[1]
-            pos.position.z = swarm.allcfs.crazyflies[i].position()[2]
+            pos.position.x = cf.position()[0]
+            pos.position.y = cf.position()[1]
+            pos.position.z = cf.position()[2]
             pos.orientation.w = 0
             pos.orientation.x = 0
             pos.orientation.y = 0
@@ -105,17 +101,18 @@ class PublisherHelper:
             curr_pos[i] = pos
         return curr_pos
 
-    def velocity_publisher(self, pub, curr_pos, prev_pos, step):
+    def velocity_publisher(self, pub:rospy.Publisher):
 
         for i in range(len(pub)):
             time_s, time_d = divmod(self.th.time(), 1)
             time_ns = time_d * 10**9
+            cf = self.swarm.allcfs.crazyflies[i]
 
             vel_stamped = TwistStamped()
             v = Twist()
-            v.linear.x = (curr_pos[i].position.x-prev_pos[i].position.x)/step
-            v.linear.y = (curr_pos[i].position.y-prev_pos[i].position.y)/step
-            v.linear.z = (curr_pos[i].position.z-prev_pos[i].position.z)/step
+            v.linear.x = cf.velocity()[0]
+            v.linear.y = cf.velocity()[1]
+            v.linear.z = cf.velocity()[2]
             v.angular.x = 0
             v.angular.y = 0
             v.angular.z = 0
