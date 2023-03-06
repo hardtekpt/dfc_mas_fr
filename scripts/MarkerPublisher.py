@@ -4,9 +4,8 @@ import rospy
 import sys
 from geometry_msgs.msg import PoseStamped
 from visualization_msgs.msg import Marker, MarkerArray
-from dfc_mas_fr.srv import Commander, Map, MapResponse
+from dfc_mas_fr.srv import Map, MapResponse
 from dfc_mas_fr.GradientMap import GradientMap
-from dfc_mas_fr.msg import Hiperboloid, Obstacle
 import matplotlib
 import numpy as np
 

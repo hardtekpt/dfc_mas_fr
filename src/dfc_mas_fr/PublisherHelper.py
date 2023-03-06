@@ -4,11 +4,10 @@ import rospy
 import numpy as np
 from enum import Enum
 from geometry_msgs.msg import TwistStamped, PoseStamped, Twist, Pose
-from dfc_mas_fr.srv import Commander, Map, MapResponse
-from dfc_mas_fr.msg import Hiperboloid, Obstacle
+from dfc_mas_fr.srv import Commander
 from dfc_mas_fr.GradientMap import GradientMap
 
-CH = Enum('Commander_Handler', ['TAKEOFF', 'LAND', 'FLY', 'TAKINGOFF', 'LANDING', 'FLYING'])
+CH = Enum('Commander_Handler', ['TAKEOFF', 'TAKINGOFF', 'FLY', 'FLYING', 'LAND', 'LANDING'])
 class PublisherHelper:
 
     def __init__(self, swarm):

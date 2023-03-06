@@ -6,6 +6,7 @@ import numpy as np
 from geometry_msgs.msg import TwistStamped, PoseStamped, Twist, Pose
 from dfc_mas_fr.srv import CommanderResponse
 from dfc_mas_fr.GradientMap import GradientMap
+from dfc_mas_fr.srv import Map, MapResponse
 
 class NodeHelper:
 
@@ -87,14 +88,16 @@ class NodeHelper:
 
     def get_map(self):
 
-        map_dimensions = np.asarray([20, 20])
-        map = GradientMap(dimensions=map_dimensions)
-
-        hiperboloid_center = np.asarray([10, 10])
-        hiperboloid_params = np.asarray([5000, 3, 3, 15])
-        map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params)
-
-        return map
+        rospy.wait_for_service('publisher/map_handler')
+        try:
+            get_map = rospy.ServiceProxy('publisher/map_handler', Map)
+            resp:MapResponse = get_map()
+            
+            map_obj = GradientMap(dimensions=resp.map_dimensions)
+            map_obj.convert_srv_to_obj(map_srv=resp)
+            return map_obj
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
 
     def handle_commander(self, req):
         if req.start:

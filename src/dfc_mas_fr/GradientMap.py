@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from copy import deepcopy
 import csv
-from dfc_mas_fr.srv import Commander, Map, MapResponse
+from dfc_mas_fr.srv import MapResponse
 from dfc_mas_fr.msg import Hiperboloid, Obstacle
 class GradientMap():
 

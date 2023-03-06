@@ -22,17 +22,15 @@ class Algorithm:
         utility = self.get_utility_vector(current_positions)
         formation = self.get_formation_vector(current_positions,distribution)
 
-        heading = cw[0]*separation + cw[1]*cohesion + cw[2]*alignment + cw[3]*attraction + cw[4]*utility + cw[5]*formation
-        
+        #heading = cw[0]*separation + cw[1]*cohesion + cw[2]*alignment + cw[3]*attraction + cw[4]*utility + cw[5]*formation
+        heading = cw[0]*separation + cw[1]*cohesion + cw[2]*alignment + cw[3]*attraction
+
         return heading
     
     def get_separation_vector(self, current_positions: np.ndarray, distribution) -> np.ndarray((2,)):
 
         neighbours = np.where(distribution == 1)[0]
         sum = 0
-
-        #print(current_positions)
-        #print(neighbours)
 
         for neighbour in neighbours:
             sum += current_positions[self.agent, :] - current_positions[neighbour, :]
