@@ -22,8 +22,16 @@ class Algorithm:
         utility = self.get_utility_vector(current_positions)
         formation = self.get_formation_vector(current_positions,distribution)
 
-        #heading = cw[0]*separation + cw[1]*cohesion + cw[2]*alignment + cw[3]*attraction + cw[4]*utility + cw[5]*formation
-        heading = cw[0]*separation + cw[1]*cohesion + cw[2]*alignment + cw[3]*attraction
+        heading = cw[0]*separation + cw[1]*cohesion + cw[2]*alignment + cw[3]*attraction + cw[4]*utility + cw[5]*formation
+
+        norm = np.linalg.norm(heading)
+        if norm != 0:
+            heading /= norm
+
+        new_velocity = current_velocities[self.agent, :] + heading
+        norm = np.linalg.norm(new_velocity)
+        if norm != 0:
+            new_velocity /= norm
 
         return heading
     
@@ -83,21 +91,39 @@ class Algorithm:
     
     def get_formation_vector(self, current_positions: np.ndarray, distribution):
 
-        neighbours = np.where(distribution == 1)[0]
-        mean_point = np.mean(neighbours)
-        rho = np.mean(np.linalg.norm(neighbours-mean_point))
+        neighbours = current_positions[np.where(distribution == 1)[0]]
+        mean_point = np.asarray([np.mean(neighbours[:,0]), np.mean(neighbours[:,1])])
+        #rho = np.mean(np.linalg.norm(neighbours-mean_point, axis=1))
+        rho = 0.5
         phis = np.arange(0,2*math.pi, (2*math.pi)/len(neighbours))
-        formation_positions = np.zeros((2,len(phis)))
+        formation_positions = np.zeros((len(phis), 2))
         distance_to_closest_slot = self.sensing_radius
         closest_slot_idx = -1
+        neighbours_slot_idx = np.full((len(neighbours),),-1)
 
         for i in range(len(phis)):
-            formation_positions[:,i] = np.asarray([rho * np.cos(phis[i]), rho * np.sin(phis[i])])
-            distance = np.linalg.norm(current_positions[self.agent] - formation_positions[:,i])
-            if distance < distance_to_closest_slot:
+            formation_positions[i] = np.asarray([rho * np.sin(phis[i]), rho * np.cos(phis[i])])
+            formation_positions[i] += mean_point
+            distance = np.linalg.norm(current_positions[self.agent] - formation_positions[i])
+            dist_between_slot_and_neighbours = np.linalg.norm(neighbours - formation_positions[i], axis=1)
+            if (distance < distance_to_closest_slot) and (distance == np.min(dist_between_slot_and_neighbours)):
                 distance_to_closest_slot = distance
                 closest_slot_idx = i
 
-        formation = formation_positions[:,closest_slot_idx] - current_positions[self.agent]
+        # When agents compet for slot!!, very slow
+        if closest_slot_idx == -1:
+            for j in range(len(neighbours)):
+                distance_to_closest_slot = 3
+                for i in range(len(phis)):
+                    distance = np.linalg.norm(neighbours[j] - formation_positions[i])
+                    dist_between_slot_and_neighbours = np.linalg.norm(neighbours - formation_positions[i], axis=1)
+                    if (distance < distance_to_closest_slot) and (distance == np.min(dist_between_slot_and_neighbours)):
+                        distance_to_closest_slot = distance
+                        neighbours_slot_idx[j] = i
+            for i in range(len(phis)):
+                if i not in neighbours_slot_idx:
+                    closest_slot_idx = i
+
+        formation = formation_positions[closest_slot_idx] - current_positions[self.agent]
 
         return formation

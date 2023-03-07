@@ -19,6 +19,26 @@
             <arg name="id" value="2"/>
             <arg name="sim" value="$(arg sim)"/>
         </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node3"/>
+            <arg name="id" value="3"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node4"/>
+            <arg name="id" value="4"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node5"/>
+            <arg name="id" value="5"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node6"/>
+            <arg name="id" value="6"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
         
         
         <node pkg="dfc_mas_fr" type="MarkerPublisher.py" name="marker_publisher" output="screen" args="node 9">

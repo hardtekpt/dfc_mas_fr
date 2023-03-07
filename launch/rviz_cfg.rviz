@@ -159,8 +159,8 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/Orbit
-      Distance: 45.70079803466797
+      Class: rviz/ThirdPersonFollower
+      Distance: 34.98185729980469
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -168,18 +168,78 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 2.762183904647827
-        Y: 1.8684829473495483
-        Z: -2.637575626373291
+        X: 12.894622802734375
+        Y: 6.274286270141602
+        Z: -1.9073486328125e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7303980588912964
+      Pitch: 1.160398006439209
       Target Frame: <Fixed Frame>
-      Yaw: 0.4053981900215149
-    Saved: ~
+      Yaw: 0.08539820462465286
+    Saved:
+      - Class: rviz/ThirdPersonFollower
+        Distance: 7.690186977386475
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.05999999865889549
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Field of View: 0.7853981852531433
+        Focal Point:
+          X: 2.8401529788970947
+          Y: 1.3576773405075073
+          Z: -4.76837158203125e-07
+        Focal Shape Fixed Size: true
+        Focal Shape Size: 0.05000000074505806
+        Invert Z Axis: false
+        Name: ThirdPersonFollower
+        Near Clip Distance: 0.009999999776482582
+        Pitch: 1.160398006439209
+        Target Frame: <Fixed Frame>
+        Yaw: 0.08539820462465286
+      - Class: rviz/ThirdPersonFollower
+        Distance: 34.98185729980469
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.05999999865889549
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Field of View: 0.7853981852531433
+        Focal Point:
+          X: 12.894622802734375
+          Y: 6.274286270141602
+          Z: -1.9073486328125e-06
+        Focal Shape Fixed Size: true
+        Focal Shape Size: 0.05000000074505806
+        Invert Z Axis: false
+        Name: ThirdPersonFollower
+        Near Clip Distance: 0.009999999776482582
+        Pitch: 1.160398006439209
+        Target Frame: <Fixed Frame>
+        Yaw: 0.08539820462465286
+      - Class: rviz/ThirdPersonFollower
+        Distance: 34.98185729980469
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.05999999865889549
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Field of View: 0.7853981852531433
+        Focal Point:
+          X: 12.894622802734375
+          Y: 6.274286270141602
+          Z: -1.9073486328125e-06
+        Focal Shape Fixed Size: true
+        Focal Shape Size: 0.05000000074505806
+        Invert Z Axis: false
+        Name: ThirdPersonFollower
+        Near Clip Distance: 0.009999999776482582
+        Pitch: 1.160398006439209
+        Target Frame: <Fixed Frame>
+        Yaw: 0.08539820462465286
 Window Geometry:
   Displays:
     collapsed: false

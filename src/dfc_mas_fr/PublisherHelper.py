@@ -46,7 +46,7 @@ class PublisherHelper:
             self.velocity_publisher(self.pub_vel)
 
             # Change from takeoff mode to fly mode after the takeoff duration
-            if (self.commander_handler == CH.TAKINGOFF) and ((self.th.time()-init_time)>=self.takeoff_and_land_duration):
+            if (self.commander_handler == CH.TAKINGOFF) and ((self.th.time()-init_time)>=self.takeoff_and_land_duration+1):
                 self.commander_handler = CH.FLY
 
             # Change from fly to land mode after the run duration

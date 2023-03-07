@@ -117,9 +117,11 @@ class GradientMap():
             theta = hiperboloid['params'][1]
             thau = hiperboloid['params'][2]
             w = hiperboloid['params'][3]
+            x = position[0] - hiperboloid['center'][1]
+            y = position[1] - hiperboloid['center'][0]
         
-            dx += - (2*k*(theta**2)*position[0])/(((theta**2)*(position[0]**2) + (thau**2)*(position[1]**2) + w)**2)
-            dy += - (2*k*(thau**2)*position[1])/(((theta**2)*(position[0]**2) + (thau**2)*(position[1]**2) + w)**2)
+            dx += (-2*k*(theta**2)*x)/(((theta**2)*(x**2) + (thau**2)*(y**2) + w)**2)
+            dy += (-2*k*(thau**2)*y)/(((theta**2)*(x**2) + (thau**2)*(y**2) + w)**2)
 
         return np.asarray([dx, dy])
 
