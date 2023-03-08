@@ -99,7 +99,7 @@ def map_update(update_msg:MapUpdate, args):
 
 if __name__ == '__main__':
 
-    number_of_agents = int(sys.argv[2])
+    number_of_agents = rospy.get_param("number_of_agents")
     pubs = np.ndarray((number_of_agents,),rospy.Publisher)
 
     rospy.init_node('marker_publisher')

@@ -41,8 +41,8 @@ def Node(id:int):
         curr_vel_true = nh.get_curr_vel()
         curr_dist = nh.get_dist()
 
-        curr_pos = nh.corrupt_pos(curr_pos_true, 0.2)
-        curr_vel = nh.corrupt_vel(curr_vel_true, 0.2)
+        curr_pos = nh.corrupt_pos(curr_pos_true, 0.05)
+        curr_vel = nh.corrupt_vel(curr_vel_true, 0.05)
         
         vel = al.update_movement(curr_pos[:,0:2], curr_vel[:,0:2], curr_dist)
 

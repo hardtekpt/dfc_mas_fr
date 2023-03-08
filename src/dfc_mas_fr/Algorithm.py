@@ -33,7 +33,7 @@ class Algorithm:
         if norm != 0:
             new_velocity /= norm
 
-        return heading
+        return new_velocity
     
     def get_separation_vector(self, current_positions: np.ndarray, distribution) -> np.ndarray((2,)):
 

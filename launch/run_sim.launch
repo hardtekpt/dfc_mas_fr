@@ -5,10 +5,8 @@
     <group ns="algorithm">
         <rosparam file="$(find dfc_mas_fr)/config/algorithm_params.yaml" />
 
-        <node pkg="dfc_mas_fr" type="Publisher.py" name="publisher" output="screen" args="--sim --dt=0.1 --vis=mpl">
+        <node pkg="dfc_mas_fr" type="Publisher.py" name="publisher" output="screen" args="--sim --dt=0.1 --vis=mpl"/>
             
-        </node>
-
         <include file="$(find dfc_mas_fr)/launch/node.launch">
             <arg name="name" value="node1"/>
             <arg name="id" value="1"/>
@@ -40,10 +38,7 @@
             <arg name="sim" value="$(arg sim)"/>
         </include>
         
-        
-        <node pkg="dfc_mas_fr" type="MarkerPublisher.py" name="marker_publisher" output="screen" args="node 9">
-            
-        </node>
+        <node pkg="dfc_mas_fr" type="MarkerPublisher.py" name="marker_publisher" output="screen" args="node"/>
 
         <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dfc_mas_fr)/launch/rviz_cfg.rviz"/>
     </group>
