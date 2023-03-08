@@ -4,9 +4,8 @@ import rospy
 import numpy as np
 
 from geometry_msgs.msg import TwistStamped, PoseStamped, Twist, Pose
-from dfc_mas_fr.srv import CommanderResponse
+from dfc_mas_fr.srv import CommanderResponse, Map, MapResponse
 from dfc_mas_fr.GradientMap import GradientMap
-from dfc_mas_fr.srv import Map, MapResponse
 
 class NodeHelper:
 
@@ -27,6 +26,8 @@ class NodeHelper:
         for i in range(n_agents):
             self.pos_subs[i] = rospy.Subscriber('node'+str(i+1)+'/pose', PoseStamped, self.save_pos, (i,))
             self.vel_subs[i] = rospy.Subscriber('node'+str(i+1)+'/twist', TwistStamped, self.save_vel, (i,))
+
+        
 
     def save_pos(self, p:PoseStamped, args):
         
@@ -105,3 +106,4 @@ class NodeHelper:
         if req.stop:
             self.run = False
         return CommanderResponse(True)
+    

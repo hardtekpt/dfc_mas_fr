@@ -54,6 +54,7 @@ add_message_files(
   FILES
   Obstacle.msg
   Hiperboloid.msg
+  MapUpdate.msg
 )
 
 ## Generate services in the 'srv' folder

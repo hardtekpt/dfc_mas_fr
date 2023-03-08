@@ -8,6 +8,7 @@ from dfc_mas_fr.Algorithm import Algorithm
 from dfc_mas_fr.NodeHelper import NodeHelper
 from dfc_mas_fr.srv import Commander
 from geometry_msgs.msg import Twist
+from dfc_mas_fr.msg import MapUpdate
 
 
 def Node(id:int):
@@ -20,8 +21,10 @@ def Node(id:int):
     rospy.init_node('node'+str(id))
     rate = rospy.Rate(30)
     rospy.Service('node'+str(id)+'/commander', Commander, nh.handle_commander)
-
+    
     map = nh.get_map()
+    rospy.Subscriber('publisher/map_update', MapUpdate, map.map_update)
+
     cw = np.asarray(rospy.get_param("control_weights"))
 
     al = Algorithm(id, SR, map, cw)

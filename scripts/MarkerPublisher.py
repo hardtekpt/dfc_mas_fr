@@ -8,6 +8,7 @@ from dfc_mas_fr.srv import Map, MapResponse
 from dfc_mas_fr.GradientMap import GradientMap
 import matplotlib
 import numpy as np
+from dfc_mas_fr.msg import MapUpdate
 
 def pos_callback(p:PoseStamped, args):
     pub_marker = args[0]
@@ -85,7 +86,16 @@ def publish_map(pub:rospy.Publisher, map:MapResponse):
     # publish marker array
     pub.publish(marker_array)
     
-    pass
+def map_update(update_msg:MapUpdate, args):
+    map = args[0]
+    map_pub = args[1]
+    map.map_update(update_msg)
+    map_srv = map.convert_obj_to_srv()
+
+    print(map_srv)
+
+    publish_map(map_pub, map_srv)
+
 
 if __name__ == '__main__':
 
@@ -102,9 +112,13 @@ if __name__ == '__main__':
 
     map_pub = rospy.Publisher('/algorithm/map', MarkerArray, queue_size=10)
     rospy.wait_for_service('publisher/map_handler')
+    
     try:
         get_map = rospy.ServiceProxy('publisher/map_handler', Map)
         resp = get_map()
+        map = GradientMap(dimensions=resp.map_dimensions)
+        map.convert_srv_to_obj(resp)
+        rospy.Subscriber('publisher/map_update', MapUpdate, map_update, (map, map_pub))
         rospy.sleep(1)
         publish_map(map_pub, resp)
     except rospy.ServiceException as e:

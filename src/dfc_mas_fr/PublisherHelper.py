@@ -5,7 +5,7 @@ import numpy as np
 from enum import Enum
 from geometry_msgs.msg import TwistStamped, PoseStamped, Twist, Pose
 from dfc_mas_fr.srv import Commander
-from dfc_mas_fr.GradientMap import GradientMap
+from dfc_mas_fr.MapUpdateHelper import MapUpdateHelper
 
 CH = Enum('Commander_Handler', ['TAKEOFF', 'TAKINGOFF', 'FLY', 'FLYING', 'LAND', 'LANDING'])
 class PublisherHelper:
@@ -23,6 +23,8 @@ class PublisherHelper:
         self.pub_vel = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Publisher)
         self.cmd_vel_sub = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Subscriber)
 
+        self.map_update = MapUpdateHelper()
+
         self.rate = 30
         self.first_iteration = True
         self.last_iteration = True
@@ -33,8 +35,6 @@ class PublisherHelper:
             self.pub_pos[i] = rospy.Publisher('node'+str(cf.id)+'/pose', PoseStamped, queue_size=10)
             self.pub_vel[i] = rospy.Publisher('node'+str(cf.id)+'/twist', TwistStamped, queue_size=10)
             self.cmd_vel_sub[i] = rospy.Subscriber('node'+str(cf.id)+'/cmd_vel', Twist, self.vel_callback, (cf,))
-
-        self.map = self.init_map()
 
     def run_algorithm(self):
 
@@ -142,18 +142,3 @@ class PublisherHelper:
             vel_stamped.header.frame_id = "map"
             vel_stamped.twist = v
             pub[i].publish(vel_stamped)
-
-    def init_map(self):
-    
-        map_dimensions = np.asarray([20, 20])
-        map = GradientMap(dimensions=map_dimensions)
-
-        hiperboloid_center = np.asarray([10, 10])
-        hiperboloid_params = np.asarray([5000, 2, 2, 15])
-        map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params)
-
-        return map
-    
-    def handle_map_srv(self, req):
-        map_msg = self.map.convert_obj_to_srv()
-        return map_msg

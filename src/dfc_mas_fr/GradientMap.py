@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 import csv
 from dfc_mas_fr.srv import MapResponse
-from dfc_mas_fr.msg import Hiperboloid, Obstacle
+from dfc_mas_fr.msg import Hiperboloid, Obstacle, MapUpdate
 class GradientMap():
 
     OBSTACLE_UTILITY_VALUE = -2000
@@ -204,6 +204,22 @@ class GradientMap():
                 discrete_map[y_idx][position_indxs[0]: np.min([position_indxs[0]+size_indxs[0], grid_dimensions[0]]).astype(int)] = GradientMap.OBSTACLE_UTILITY_VALUE
 
         return discrete_map
+    
+    def map_update(self, update_msg:MapUpdate):
+    
+        op = update_msg.operation
+
+        if op == 'translation':
+            self.map['hiperboloids'][update_msg.idx]['center'] = update_msg.hip.center
+
+        if op == 'value_change':
+            self.map['hiperboloids'][update_msg.idx]['params'] = update_msg.hip.params
+
+        if op == 'create_hip':
+            self.add_hiperboloid(center=update_msg.hip.center, params=update_msg.hip.params)
+
+        if op == 'destroy_hip':
+            self.rm_hiperboloid(update_msg.idx)
         
 
 if __name__ == "__main__":

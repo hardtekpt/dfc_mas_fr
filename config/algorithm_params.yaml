@@ -1,5 +1,5 @@
 number_of_agents: 6
-run_duration: 60
+run_duration: 40
 flying_height: 1
 takeoff_and_land_duration: 3
 agent_sensing_radius: 5
