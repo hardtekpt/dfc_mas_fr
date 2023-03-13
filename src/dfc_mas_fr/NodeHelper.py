@@ -4,8 +4,7 @@ import rospy
 import numpy as np
 
 from geometry_msgs.msg import TwistStamped, PoseStamped, Twist, Pose
-from dfc_mas_fr.srv import CommanderResponse, Map, MapResponse
-from dfc_mas_fr.GradientMap import GradientMap
+from dfc_mas_fr.srv import CommanderResponse
 
 class NodeHelper:
 
@@ -63,42 +62,43 @@ class NodeHelper:
 
         return self.dist
 
-    def corrupt_pos(self, data:Pose, std_d):
+    def corrupt_pos(self, data, std_d):
 
         corrupted_data = np.ndarray((len(data),3))
         noise = np.random.normal(0,std_d,3)
+
+        for i in range(len(noise)):
+            if noise[i] > 3 * std_d:
+                noise[i] = 3 * std_d
+            if noise[i] < -3 * std_d:
+                noise[i] = -3 * std_d
+        
         for i in range(len(data)):
             pose = Pose()
             pose = data[i]
-            corrupted_data[i][0] = pose.position.x + noise[0]
-            corrupted_data[i][1] = pose.position.y + noise[1]
-            corrupted_data[i][2] = pose.position.z + noise[2]
+            corrupted_data[i,0] = pose.position.x + noise[0]
+            corrupted_data[i,1] = pose.position.y + noise[1]
+            corrupted_data[i,2] = pose.position.z + noise[2]
         return corrupted_data
 
-    def corrupt_vel(self, data:Twist, std_d):
+    def corrupt_vel(self, data, std_d):
 
         corrupted_data = np.ndarray((len(data),3))
         noise = np.random.normal(0,std_d,3)
+
+        for i in range(len(noise)):
+            if noise[i] > 3 * std_d:
+                noise[i] = 3 * std_d
+            if noise[i] < -3 * std_d:
+                noise[i] = -3 * std_d
+
         for i in range(len(data)):
             twist = Twist()
             twist = data[i]
-            corrupted_data[i][0] = twist.linear.x + noise[0]
-            corrupted_data[i][1] = twist.linear.y + noise[1]
-            corrupted_data[i][2] = twist.linear.z + noise[2]
+            corrupted_data[i,0] = twist.linear.x + noise[0]
+            corrupted_data[i,1] = twist.linear.y + noise[1]
+            corrupted_data[i,2] = twist.linear.z + noise[2]
         return corrupted_data
-
-    def get_map(self):
-
-        rospy.wait_for_service('publisher/map_handler')
-        try:
-            get_map = rospy.ServiceProxy('publisher/map_handler', Map)
-            resp:MapResponse = get_map()
-            
-            map_obj = GradientMap(dimensions=resp.map_dimensions)
-            map_obj.convert_srv_to_obj(map_srv=resp)
-            return map_obj
-        except rospy.ServiceException as e:
-            print("Service call failed: %s"%e)
 
     def handle_commander(self, req):
         if req.start:

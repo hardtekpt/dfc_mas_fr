@@ -1,37 +1,41 @@
 crazyflies:
 - channel: 100
-  id: 9
-  initialPosition: [0, 0, 0.0]
+  id: 1
+  initialPosition: [1, 1, 0.0]
   type: medium
 - channel: 100
   id: 2
-  initialPosition: [1, 0, 0.0]
+  initialPosition: [2, 1, 0.0]
   type: medium
 - channel: 100
   id: 3
-  initialPosition: [2, 0, 0.0]
-  type: medium
-- channel: 100
-  id: 4
-  initialPosition: [0, 1, 0.0]
-  type: medium
-- channel: 100
-  id: 5
-  initialPosition: [10, 1, 0.0]
-  type: medium
-- channel: 100
-  id: 6
-  initialPosition: [12, 1, 0.0]
-  type: medium
-- channel: 100
-  id: 7
-  initialPosition: [0, 2, 0.0]
-  type: medium
-- channel: 100
-  id: 8
   initialPosition: [1, 2, 0.0]
   type: medium
 - channel: 100
-  id: 1
+  id: 4
   initialPosition: [2, 2, 0.0]
+  type: medium
+- channel: 100
+  id: 5
+  initialPosition: [19, 19, 0.0]
+  type: medium
+- channel: 100
+  id: 6
+  initialPosition: [19, 18, 0.0]
+  type: medium
+- channel: 100
+  id: 7
+  initialPosition: [18, 19, 0.0]
+  type: medium
+- channel: 100
+  id: 8
+  initialPosition: [1, 19, 0.0]
+  type: medium
+- channel: 100
+  id: 9
+  initialPosition: [19, 1, 0.0]
+  type: medium
+- channel: 100
+  id: 10
+  initialPosition: [19, 2, 0.0]
   type: medium

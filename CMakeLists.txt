@@ -54,15 +54,16 @@ add_message_files(
   FILES
   Obstacle.msg
   Hiperboloid.msg
-  MapUpdate.msg
+  #MapUpdate.msg
+  Map.msg
 )
 
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  GetUtilityValue.srv
+  #GetUtilityValue.srv
   Commander.srv
-  Map.srv
+  #Map.srv
 )
 
 ## Generate actions in the 'action' folder

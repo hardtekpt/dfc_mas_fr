@@ -4,27 +4,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 from copy import deepcopy
 import csv
-from dfc_mas_fr.srv import MapResponse
-from dfc_mas_fr.msg import Hiperboloid, Obstacle, MapUpdate
+from dfc_mas_fr.msg import Hiperboloid, Obstacle, Map
 class GradientMap():
 
     OBSTACLE_UTILITY_VALUE = -2000
 
     DRAW_RESOLUTION = 0.05
 
-    RENDEZVOUS_AREA_INSPECTION_MINIMUM_DISTANCE = 1
+    RENDEZVOUS_AREA_INSPECTION_MINIMUM_DISTANCE = 2
 
     def __init__(self, dimensions:np.ndarray((2,)) = np.asarray([4, 7])):
         
         self.dimensions = dimensions
         self.map = {'hiperboloids': [], 'obstacles': []}
 
-    def add_hiperboloid(self, center:np.ndarray((2,)), params:np.ndarray((4,))):
+    def add_hiperboloid(self, center:np.ndarray((2,)), params:np.ndarray((4,)), d_pos:bool = False, d_val:bool = False):
 
-        hiperboloid = {'center': center, 'params': params}
+        hiperboloid = {'center': center, 'params': params, 'd_pos':d_pos, 'd_val': d_val}
         self.map['hiperboloids'].append(hiperboloid)
 
-    def add_obstacle(self, position:np.ndarray((2,)) = np.asarray([0.0, 0.0]), size:np.ndarray((2,)) = np.asarray([0.5, 0.5]), random:bool = False):
+    def add_obstacle(self, position:np.ndarray((2,)) = np.asarray([0.0, 0.0]), size:np.ndarray((2,)) = np.asarray([2, 2]), random:bool = False):
         
         if random:
             position[0] = np.random.uniform(0,self.dimensions[0] - size[0])
@@ -34,8 +33,19 @@ class GradientMap():
         self.map['obstacles'].append(deepcopy(obstacle))
 
     def show(self, block:bool = True):
-        
+
+        grid_dimensions = np.ndarray((2,))
+        grid_dimensions[0] = self.dimensions[0] / GradientMap.DRAW_RESOLUTION
+        grid_dimensions[1] = self.dimensions[1] / GradientMap.DRAW_RESOLUTION
+
         discrete_map = self.discretize_map(GradientMap.DRAW_RESOLUTION)
+
+        for obstacle in self.map['obstacles']:
+            position_indxs = [int(obstacle['pos'][0]/GradientMap.DRAW_RESOLUTION), int(obstacle['pos'][1]/GradientMap.DRAW_RESOLUTION)]
+            size_indxs = [int(obstacle['size'][0]/GradientMap.DRAW_RESOLUTION), int(obstacle['size'][1]/GradientMap.DRAW_RESOLUTION)]
+
+            for y_idx in range(position_indxs[1], np.min([position_indxs[1] + size_indxs[1], grid_dimensions[1]]).astype(int)):
+                discrete_map[y_idx][position_indxs[0]: np.min([position_indxs[0]+size_indxs[0], grid_dimensions[0]]).astype(int)] = GradientMap.OBSTACLE_UTILITY_VALUE
 
         color_map = plt.get_cmap('viridis')
         color_map.set_bad(color='black')
@@ -125,12 +135,13 @@ class GradientMap():
 
         return np.asarray([dx, dy])
 
-    def check_if_agent_is_in_rendezvous_area(self, position:np.ndarray((2,))):
+    def check_if_agent_is_in_rendezvous_area(self, position:np.ndarray((2,)), i):
 
-        for i in range(len(self.map['hiperboloids'])):
-            if np.linalg.norm(position - self.map['hiperboloids'][i]['pos']) <= GradientMap.RENDEZVOUS_AREA_INSPECTION_MINIMUM_DISTANCE:
-                return i
-        return -1
+        hip = np.asarray([self.map['hiperboloids'][i]['center'][1], self.map['hiperboloids'][i]['center'][0]])
+
+        if np.linalg.norm(position - hip) <= GradientMap.RENDEZVOUS_AREA_INSPECTION_MINIMUM_DISTANCE:
+            return True
+        return False
 
     def check_for_obstacle_collision(self, position:np.ndarray((2,)), obstacle):
 
@@ -139,9 +150,9 @@ class GradientMap():
                 return True
         return False
     
-    def convert_obj_to_srv(self):
+    def convert_obj_to_msg(self):
         
-        map_msg = MapResponse()
+        map_msg = Map()
         map_msg.map_dimensions = self.dimensions
         map_msg.n_obs = 0
         map_msg.n_hip = 0
@@ -160,21 +171,21 @@ class GradientMap():
             obs = self.map['obstacles'][i]
 
             map_msg.n_obs += 1
-            obs_msg.center = obs['pos']
-            obs_msg.params = obs['size']
+            obs_msg.pos = obs['pos']
+            obs_msg.size = obs['size']
             map_msg.obstacles.append(obs_msg)
         return map_msg
 
-    def convert_srv_to_obj(self, map_srv):
+    def convert_msg_to_obj(self, map_msg):
     
-        for i in range(map_srv.n_hip):
+        for i in range(map_msg.n_hip):
             hip = Hiperboloid()
-            hip = map_srv.hiperboloids[i]
+            hip = map_msg.hiperboloids[i]
             self.add_hiperboloid(hip.center, hip.params)
 
-        for i in range(map_srv.n_obs):
+        for i in range(map_msg.n_obs):
             obs = Obstacle()
-            obs = map_srv.obstacles[i]
+            obs = map_msg.obstacles[i]
             self.add_obstacle(obs.pos, obs.size)
 
     def discretize_map(self, res): 
@@ -196,30 +207,20 @@ class GradientMap():
                     w = hiperboloid['params'][3]
                     discrete_map[x_idx][y_idx] += k / ((theta * (x[x_idx] - hiperboloid['center'][1]))**2 + (thau * (y[y_idx] - hiperboloid['center'][0]))**2 + w)
 
-        for obstacle in self.map['obstacles']:
-            position_indxs = (obstacle['pos']/res).astype(int)
-            size_indxs = (obstacle['size']/res).astype(int)
+        # for obstacle in self.map['obstacles']:
+        #     position_indxs = [int(obstacle['pos'][0]/res), int(obstacle['pos'][1]/res)]
+        #     size_indxs = [int(obstacle['size'][0]/res), int(obstacle['size'][1]/res)]
 
-            for y_idx in range(position_indxs[1], np.min([position_indxs[1] + size_indxs[1], grid_dimensions[1]]).astype(int)):
-                discrete_map[y_idx][position_indxs[0]: np.min([position_indxs[0]+size_indxs[0], grid_dimensions[0]]).astype(int)] = GradientMap.OBSTACLE_UTILITY_VALUE
+        #     for y_idx in range(position_indxs[1], np.min([position_indxs[1] + size_indxs[1], grid_dimensions[1]]).astype(int)):
+        #         discrete_map[y_idx][position_indxs[0]: np.min([position_indxs[0]+size_indxs[0], grid_dimensions[0]]).astype(int)] = GradientMap.OBSTACLE_UTILITY_VALUE
 
         return discrete_map
-    
-    def map_update(self, update_msg:MapUpdate):
-    
-        op = update_msg.operation
 
-        if op == 'translation':
-            self.map['hiperboloids'][update_msg.idx]['center'] = update_msg.hip.center
+    def map_update(self, map:Map):
 
-        if op == 'value_change':
-            self.map['hiperboloids'][update_msg.idx]['params'] = update_msg.hip.params
-
-        if op == 'create_hip':
-            self.add_hiperboloid(center=update_msg.hip.center, params=update_msg.hip.params)
-
-        if op == 'destroy_hip':
-            self.rm_hiperboloid(update_msg.idx)
+        self.dimensions = map.map_dimensions
+        self.map = {'hiperboloids': [], 'obstacles': []}
+        self.convert_msg_to_obj(map)
         
 
 if __name__ == "__main__":

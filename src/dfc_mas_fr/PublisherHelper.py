@@ -23,11 +23,8 @@ class PublisherHelper:
         self.pub_vel = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Publisher)
         self.cmd_vel_sub = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Subscriber)
 
-        self.map_update = MapUpdateHelper()
-
-        self.rate = 30
-        self.first_iteration = True
-        self.last_iteration = True
+        self.rate = rospy.get_param("publish_rate")
+        self.map_handler = MapUpdateHelper()
         self.commander_handler = CH.TAKEOFF
 
         for i in range(len(self.swarm.allcfs.crazyflies)):
@@ -39,11 +36,17 @@ class PublisherHelper:
     def run_algorithm(self):
 
         init_time = self.th.time()
+        ii = 0
         while (not self.th.isShutdown()):
 
             # Publish agent positions and velocities
-            self.position_publisher(self.pub_pos)
+            curr_pos = self.position_publisher(self.pub_pos)
             self.velocity_publisher(self.pub_vel)
+
+            # Publish map
+            if ii == self.rate:
+                ii = 0
+                self.map_handler.map_publisher(curr_pos)
 
             # Change from takeoff mode to fly mode after the takeoff duration
             if (self.commander_handler == CH.TAKINGOFF) and ((self.th.time()-init_time)>=self.takeoff_and_land_duration+1):
@@ -79,6 +82,7 @@ class PublisherHelper:
 
             # Sleep for the set rate
             self.th.sleepForRate(self.rate)
+            ii += 1
     
     def vel_callback(self, v:Twist, args):
 
@@ -98,7 +102,7 @@ class PublisherHelper:
 
     def position_publisher(self, pub:rospy.Publisher):
 
-        curr_pos = np.ndarray((len(pub),),Pose)
+        curr_pos = np.ndarray((len(pub), 3))
 
         for i in range(len(pub)):
             time_s, time_d = divmod(self.th.time(), 1)
@@ -119,7 +123,8 @@ class PublisherHelper:
             pose.header.stamp.nsecs = int(time_ns)
             pose.header.frame_id = "map"
             pub[i].publish(pose)
-            curr_pos[i] = pos
+            curr_pos[i] = [cf.position()[0],cf.position()[1],cf.position()[2]]
+
         return curr_pos
 
     def velocity_publisher(self, pub:rospy.Publisher):
