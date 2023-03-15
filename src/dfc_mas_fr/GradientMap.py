@@ -112,7 +112,7 @@ class GradientMap():
             value += k / ((theta * (position[0] - hiperboloid['center'][1]))**2 + (thau * (position[1] - hiperboloid['center'][0]))**2 + w)
         
         for obstacle in self.map['obstacles']:
-            if self.check_for_obstacle_collision(position, obstacle):
+            if self.check_for_obstacle_collision(position, obstacle, 0):
                 value == GradientMap.OBSTACLE_UTILITY_VALUE
 
         return value
@@ -143,10 +143,10 @@ class GradientMap():
             return True
         return False
 
-    def check_for_obstacle_collision(self, position:np.ndarray((2,)), obstacle):
+    def check_for_obstacle_collision(self, position:np.ndarray((2,)), obstacle, margin):
 
-        if (position[0] >= obstacle['pos'][0]) and (position[0] <= obstacle['pos'][0] + obstacle['size'][0]):
-            if (position[1] >= obstacle['pos'][1]) and (position[1] <= obstacle['pos'][1] + obstacle['size'][1]):
+        if (position[0] >= obstacle['pos'][0] - margin) and (position[0] <= obstacle['pos'][0] + obstacle['size'][0] + margin):
+            if (position[1] >= obstacle['pos'][1] - margin) and (position[1] <= obstacle['pos'][1] + obstacle['size'][1] + margin):
                 return True
         return False
     
@@ -228,9 +228,22 @@ if __name__ == "__main__":
     map_dimensions = np.asarray([20, 20])
     map = GradientMap(dimensions=map_dimensions)
 
-    hiperboloid_center = np.asarray([5, 5])
-    hiperboloid_params = np.asarray([5000, 3, 3, 15])
+    hiperboloid_center = np.asarray([10, 10])
+    hiperboloid_params = np.asarray([3000.0, 2, 2, 15])
     map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params)
+
+    map.add_obstacle(random=True)
+    map.add_obstacle(random=True)
+    map.add_obstacle(random=True)
+    map.add_obstacle(random=True)
+    map.add_obstacle(random=True)
+    map.add_obstacle(random=True)
+    map.add_obstacle(random=True)
+    map.add_obstacle(random=True)
+    map.add_obstacle(random=True)
+    map.add_obstacle(random=True)   
+
+    print(map.map['obstacles'])                                
 
     map.show()
 

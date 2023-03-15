@@ -30,12 +30,12 @@ class Algorithm:
         attraction = self.get_attraction_vector(current_positions,distribution)
         utility = self.get_utility_vector(current_positions)
         formation = self.get_formation_vector(current_positions,distribution)
+        random = self.get_random_vector()
 
-        heading = cw[0]*separation + cw[1]*cohesion + cw[2]*alignment + cw[3]*attraction + cw[4]*utility + cw[5]*formation
-        heading = self.normalize(heading)
+        heading = cw[0]*separation + cw[1]*cohesion + cw[2]*alignment + cw[3]*attraction + cw[4]*utility + cw[5]*formation + cw[6]*random
+        heading_norm = self.normalize(heading)
 
         new_velocity = current_velocities[self.agent, :] + heading
-        new_velocity = self.normalize(new_velocity)
 
         return new_velocity
     
@@ -102,11 +102,11 @@ class Algorithm:
 
         neighbours = current_positions[np.where(distribution == 1)[0]]
 
-        if len(neighbours == 1):
+        if len(neighbours) == 1:
             return np.zeros((2,))
 
         mean_point = np.asarray([np.mean(neighbours[:,0]), np.mean(neighbours[:,1])])
-        a = 2
+        a = 1.5
         agent_arc_angle = (2*math.pi)/len(neighbours)
         rho = a / (2 * np.sin(agent_arc_angle/2))
         phis = np.arange(0,2*math.pi, agent_arc_angle)
@@ -143,14 +143,22 @@ class Algorithm:
 
         return formation
     
+    def get_random_vector(self):
+
+        angle = np.random.rand() * 2 * math.pi
+        random = [np.cos(angle), np.sin(angle)]
+        random = self.normalize(random)
+
+        return random
+    
     def check_for_agent_collisions(self, heading, current_positions: np.ndarray, distribution):
 
         neighbours = np.where(distribution == 1)[0]
-        heading = self.normalize(heading)
+        heading_norm = self.normalize(heading)
         m = heading[1] / heading[0]
         max_distance_per_time_step = (self.collision_params['max_speed'] * self.collision_params['time_step_size'])
-        heading *= self.collision_params['max_speed']
-        expected_agent_position = current_positions[self.agent] + heading * self.collision_params['time_step_size']
+        heading_max = heading_norm * self.collision_params['max_speed']
+        expected_agent_position = current_positions[self.agent] + heading_max * self.collision_params['time_step_size']
         earliest = math.inf
         overlapping_distance = 2 * (self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']) + max_distance_per_time_step
         b = current_positions[self.agent, 1] - m * current_positions[self.agent,0]
@@ -194,3 +202,107 @@ class Algorithm:
             heading *= d / self.collision_params['time_step_size']
 
         return heading
+    
+    def check_for_obstacle_collisions(self, heading, current_positions: np.ndarray, distribution):
+    
+        heading_norm = self.normalize(heading)
+        heading_max = heading_norm * self.collision_params['max_speed']
+        expected_agent_position = current_positions[self.agent] + heading_max * self.collision_params['time_step_size']
+        overlapping_distance = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']
+
+        for obs in self.map.map['obstacles']:
+            if self.map.check_for_obstacle_collision(expected_agent_position, obs, overlapping_distance):
+                return heading * 0
+
+        return heading 
+
+    def check_for_boundaries(self, heading, current_positions: np.ndarray, distribution):
+
+        heading_norm = self.normalize(heading)
+        heading_max = heading_norm * self.collision_params['max_speed']
+        expected_agent_position = current_positions[self.agent] + heading_max * self.collision_params['time_step_size']
+        overlapping_distance = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']
+
+        if (expected_agent_position[0] + overlapping_distance) > self.map.dimensions[0]:
+            return heading * 0
+
+        elif (expected_agent_position[0] - overlapping_distance) < 0:
+            return heading * 0
+
+        elif (expected_agent_position[1] + overlapping_distance) > self.map.dimensions[1]:
+            return heading * 0
+            
+        elif (expected_agent_position[1] - overlapping_distance) < 0:
+            return heading * 0
+        
+        return heading
+
+    
+    # def check_for_boundaries(self, heading, current_positions: np.ndarray, distribution):
+    
+    #     heading_norm = self.normalize(heading)
+    #     heading_max = heading_norm * self.collision_params['max_speed']
+    #     expected_agent_position = current_positions[self.agent] + heading_max * self.collision_params['time_step_size']
+    #     overlapping_distance = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']
+    #     distance = math.inf
+
+    #     m = heading_norm[1] / heading_norm[0]
+    #     b = current_positions[self.agent, 1] - m * current_positions[self.agent, 0]
+
+    #     intersection = []
+
+    #     if (expected_agent_position[0] + overlapping_distance) > self.map.dimensions[0]:
+    #         print(0)
+    #         x = self.map.dimensions[0] - overlapping_distance
+    #         y = m * x + b
+    #         y = current_positions[self.agent,1]
+    #         dd = np.linalg.norm(expected_agent_position - [x,y])
+    #         if dd < distance:
+    #             distance = dd
+    #         intersection.append([x,y])
+
+    #     if (expected_agent_position[0] - overlapping_distance) < 0:
+    #         print(1)
+    #         x = overlapping_distance
+    #         y = m * x + b
+    #         y = current_positions[self.agent,1]
+    #         dd = np.linalg.norm(expected_agent_position - [x,y])
+    #         if dd < distance:
+    #             distance = dd
+    #         intersection.append([x,y])
+
+    #     if (expected_agent_position[1] + overlapping_distance) > self.map.dimensions[1]:
+    #         print(2)
+    #         y = self.map.dimensions[1] - overlapping_distance
+    #         x = (y - b) / m
+    #         x = current_positions[self.agent,0]
+    #         dd = np.linalg.norm(expected_agent_position - [x,y])
+    #         if dd < distance:
+    #             distance = dd
+    #         intersection.append([x,y])
+    
+    #     if (expected_agent_position[1] - overlapping_distance) < 0:
+    #         print(3)
+    #         y = overlapping_distance
+    #         x = (y - b) / m
+    #         x = current_positions[self.agent,0]
+    #         dd = np.linalg.norm(expected_agent_position - [x,y])
+    #         if dd < distance:
+    #             distance = dd
+    #         intersection.append([x,y])
+
+    #     if distance != math.inf:
+
+    #         return heading * 0
+    #         sum = 0
+
+    #         for p in intersection:
+    #             sum += current_positions[self.agent, :] - p
+
+    #         #heading = sum/len(intersection)
+
+    #         #if np.linalg.norm(heading) > 1:
+    #             #heading = self.normalize(heading)
+    #     #print(heading, heading_norm, distance != math.inf, current_positions[self.agent, :], intersection)
+
+    #     return heading

@@ -21,11 +21,11 @@ class MapUpdateHelper:
 
         self.map_update_pub = rospy.Publisher('publisher/map', Map, queue_size=10)
         
-        self.obstacles = False
+        self.obstacles = True
         self.dynamic_pos = False
         self.dynamic_val = False
         self.random_creation_and_destruction_of_hiperboloids = False
-        self.map_type = MapUpdateHelper.MAP_TYPE.SINGLE_MAX
+        self.map_type = MapUpdateHelper.MAP_TYPE.SINGLE_MIN
 
         self.map = self.init_map()
 
@@ -59,16 +59,16 @@ class MapUpdateHelper:
             map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=self.dynamic_val)
 
         if self.obstacles:
-            map.add_obstacle(random=True)
-            map.add_obstacle(random=True)
-            map.add_obstacle(random=True)
-            map.add_obstacle(random=True)
-            map.add_obstacle(random=True)
-            map.add_obstacle(random=True)
-            map.add_obstacle(random=True)
-            map.add_obstacle(random=True)
-            map.add_obstacle(random=True)
-            map.add_obstacle(random=True)
+            map.add_obstacle(position=[8.7, 17])
+            map.add_obstacle(position=[2.8, 16.4])
+            map.add_obstacle(position=[7.4, 10.4])
+            map.add_obstacle(position=[17, 4.3])
+            map.add_obstacle(position=[2.2, 7.8])
+            map.add_obstacle(position=[6.1, 17.3])
+            map.add_obstacle(position=[1, 17])
+            map.add_obstacle(position=[13.1, 11.6])
+            map.add_obstacle(position=[16.8, 6.7])
+            map.add_obstacle(position=[13.2, 2.4])
 
         return map
     

@@ -26,8 +26,6 @@ class NodeHelper:
             self.pos_subs[i] = rospy.Subscriber('node'+str(i+1)+'/pose', PoseStamped, self.save_pos, (i,))
             self.vel_subs[i] = rospy.Subscriber('node'+str(i+1)+'/twist', TwistStamped, self.save_vel, (i,))
 
-        
-
     def save_pos(self, p:PoseStamped, args):
         
         i = args[0]

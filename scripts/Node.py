@@ -41,7 +41,7 @@ def Node(id:int):
     
     while nh.run:
 
-        vel = np.ndarray((3,))
+        vel = np.zeros((3,))
         curr_pos_true = nh.get_curr_pos()
         curr_vel_true = nh.get_curr_vel()
         curr_dist = nh.get_dist()
@@ -51,14 +51,13 @@ def Node(id:int):
         
         vel = al.update_movement(curr_pos[:,0:2], curr_vel[:,0:2], curr_dist)
 
-        # pos = np.ndarray((len(curr_pos_true),3))
-        # for i in range(len(curr_pos_true)):
-        #     p = curr_pos_true[i]
-        #     pos[i,0] = p.position.x 
-        #     pos[i,1] = p.position.y 
-        #     pos[i,2] = p.position.z
+        #vel = al.check_for_agent_collisions(vel, curr_pos[:,0:2], curr_dist)
 
-        vel = al.check_for_agent_collisions(vel, curr_pos[:,0:2], curr_dist)
+        vel = al.check_for_obstacle_collisions(vel, curr_pos[:,0:2], curr_dist)
+        vel = al.check_for_boundaries(vel, curr_pos[:,0:2], curr_dist)
+
+        if np.linalg.norm(vel) > max_speed:
+            vel = al.normalize(vel) * max_speed
 
         v = Twist()
         v.linear.x = vel[0]

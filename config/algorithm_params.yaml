@@ -1,5 +1,5 @@
 number_of_agents: 10
-run_duration: 60
+run_duration: 20
 flying_height: 1
 takeoff_and_land_duration: 3
 agent_sensing_radius: 10
@@ -10,6 +10,7 @@ control_weights:
   - 0.08
   - 1
   - 1
+  - 0.01
 agent_max_vel: 1
 compute_frequency: 20
 cf_radius: 0.20

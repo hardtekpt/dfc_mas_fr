@@ -76,7 +76,7 @@ def publish_map(pub:rospy.Publisher, map:Map):
     map_obj.convert_msg_to_obj(map)
 
     # discretize map 
-    res = 0.75
+    res = 0.8
     discrete_map = map_obj.discretize_map(res)
 
     # for each cell get color, create marker and add marker to marker array
@@ -84,8 +84,9 @@ def publish_map(pub:rospy.Publisher, map:Map):
 
     for i in range(discrete_map.shape[0]):
         for j in range(discrete_map.shape[1]):
-            x = i * res
-            y = j * res
+            x = (i+0.5) * res
+            y = (j+0.5) * res
+            #print(x,y,i,j)
             cmap = matplotlib.cm.get_cmap('viridis')
             map_norm = (discrete_map[i,j]-np.min(discrete_map))/(np.max(discrete_map)-np.min(discrete_map))
             rgba = cmap(map_norm)
@@ -124,8 +125,8 @@ def publish_map(pub:rospy.Publisher, map:Map):
         marker.id = discrete_map.shape[0] * discrete_map.shape[1] + i
         marker.type = Marker.CUBE
         marker.action = Marker.ADD
-        marker.pose.position.x = obs['pos'][0]
-        marker.pose.position.y = obs['pos'][1]
+        marker.pose.position.x = obs['pos'][0] + obs['size'][0]/2
+        marker.pose.position.y = obs['pos'][1] + obs['size'][1]/2
         marker.pose.position.z = 0
         marker.pose.orientation.x = 0.0
         marker.pose.orientation.y = 0.0
