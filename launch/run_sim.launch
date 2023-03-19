@@ -2,6 +2,8 @@
 <launch>
     <arg name="sim" default="true"/>
 
+    <param name="/use_sim_time" value="true" />
+
     <group ns="algorithm">
         <rosparam file="$(find dfc_mas_fr)/config/algorithm_params.yaml" />
 

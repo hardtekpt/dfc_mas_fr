@@ -7,7 +7,7 @@ import numpy as np
 from dfc_mas_fr.Algorithm import Algorithm
 from dfc_mas_fr.NodeHelper import NodeHelper
 from dfc_mas_fr.srv import Commander
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, PoseStamped
 from dfc_mas_fr.msg import Map
 from dfc_mas_fr.GradientMap import GradientMap
 
@@ -23,6 +23,7 @@ def Node(id:int):
 
     collision_params = {'max_speed': max_speed, 'time_step_size': 1 / freq, 'cf_radius': cf_radius, 'noise_std': noise_std}
     pub_vel = rospy.Publisher('node'+str(id)+'/cmd_vel', Twist, queue_size=10)
+    pub_pos_estimate = rospy.Publisher('node'+str(id)+'/pose_estimate', PoseStamped, queue_size=10)
 
     rospy.init_node('node'+str(id))
     rate = rospy.Rate(freq)
@@ -37,6 +38,9 @@ def Node(id:int):
     while not nh.run:
         rate.sleep()
 
+    while rospy.Time.secs == 0:
+        rate.sleep()
+
     print("Node" + str(id) + " starting")
     
     while nh.run:
@@ -46,15 +50,33 @@ def Node(id:int):
         curr_vel_true = nh.get_curr_vel()
         curr_dist = nh.get_dist()
 
+        # t = rospy.Time.now()
+        # if id == 1:
+        #     #print(t, nh.aux.secs, nh.aux.nsecs, curr_pos_true[id-1].position, nh.aux2.secs, nh.aux2.nsecs, curr_pos_true[id].position)
+        #     print(t,nh.aux,nh.aux2, nh.aux==nh.aux2)
+
         curr_pos = nh.corrupt_pos(curr_pos_true, noise_std)
         curr_vel = nh.corrupt_vel(curr_vel_true, noise_std)
+
+        pose_estimate = PoseStamped()
+        pose_estimate.header.stamp = rospy.Time.now()
+        pose_estimate.pose.position.x = curr_pos[id-1,0]
+        pose_estimate.pose.position.y = curr_pos[id-1,1]
+        pose_estimate.pose.position.z = curr_pos[id-1,2]
+        pub_pos_estimate.publish(pose_estimate)
         
         vel = al.update_movement(curr_pos[:,0:2], curr_vel[:,0:2], curr_dist)
 
-        #vel = al.check_for_agent_collisions(vel, curr_pos[:,0:2], curr_dist)
+        # if(id == 1):
+        #     vel=[0,-1]
+        # if(id == 2):
+        #     vel=[0,1]
+
+        
 
         vel = al.check_for_obstacle_collisions(vel, curr_pos[:,0:2], curr_dist)
-        vel = al.check_for_boundaries(vel, curr_pos[:,0:2], curr_dist)
+        vel = al.check_for_boundaries(vel, curr_pos[:,0:2])
+        vel = al.check_for_agent_collisions(vel, curr_pos[:,0:2], curr_dist)
 
         if np.linalg.norm(vel) > max_speed:
             vel = al.normalize(vel) * max_speed

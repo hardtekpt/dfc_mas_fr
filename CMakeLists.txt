@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   geometry_msgs
+  rosgraph_msgs
   ##vizualization_msgs
   crazyswarm
   message_generation

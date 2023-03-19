@@ -20,14 +20,24 @@ def get_formation_vector(agent, current_positions: np.ndarray, distribution):
     plt.grid()
     plt.plot(current_positions[:,0], current_positions[:,1], marker="o", markersize=10, markeredgecolor="red", markerfacecolor="green", linestyle='None')
     
+
+
+
     neighbours = current_positions[np.where(distribution == 1)[0]]
+
+    if len(neighbours) == 1:
+        return np.zeros((2,))
+
     mean_point = np.asarray([np.mean(neighbours[:,0]), np.mean(neighbours[:,1])])
-    rho = np.mean(np.linalg.norm(neighbours-mean_point, axis=1))
-    phis = np.arange(0,2*math.pi, (2*math.pi)/len(neighbours))
+    a = 2
+    agent_arc_angle = (2*math.pi)/len(neighbours)
+    rho = a / (2 * np.sin(agent_arc_angle/2))
+    phis = np.arange(0,2*math.pi, agent_arc_angle)
     formation_positions = np.zeros((len(phis), 2))
-    distance_to_closest_slot = 3
+    distance_to_closest_slot = 10
     closest_slot_idx = -1
     neighbours_slot_idx = np.full((len(neighbours),),-1)
+
 
     print('neighbours', neighbours)
     print('mean', mean_point)
@@ -37,33 +47,51 @@ def get_formation_vector(agent, current_positions: np.ndarray, distribution):
     for i in range(len(phis)):
         formation_positions[i] = np.asarray([rho * np.sin(phis[i]), rho * np.cos(phis[i])])
         formation_positions[i] += mean_point
-
         distance = np.linalg.norm(current_positions[agent] - formation_positions[i])
         dist_between_slot_and_neighbours = np.linalg.norm(neighbours - formation_positions[i], axis=1)
-
         if (distance < distance_to_closest_slot) and (distance == np.min(dist_between_slot_and_neighbours)):
             distance_to_closest_slot = distance
             closest_slot_idx = i
 
-    if closest_slot_idx == -1:
+    closest_slot_idx = -1
 
+    if closest_slot_idx == -1:
         for j in range(len(neighbours)):
-            distance_to_closest_slot = 3
+            distance_to_closest_slot = 10
             for i in range(len(phis)):
                 distance = np.linalg.norm(neighbours[j] - formation_positions[i])
-                dist_between_slot_and_neighbours = np.linalg.norm(neighbours - formation_positions[i], axis=1)
 
+                if i not in neighbours_slot_idx:
+                    dist_between_slot_and_neighbours = np.linalg.norm(neighbours - formation_positions[i], axis=1)
+                else:
+                    dist_between_slot_and_neighbours[j] = math.inf
+
+                for k in range(len(phis)):
+                    if neighbours_slot_idx[k] != -1:
+                        dist_between_slot_and_neighbours[k] = math.inf
+
+
+                print(distance, j, i, dist_between_slot_and_neighbours, distance_to_closest_slot)
                 if (distance < distance_to_closest_slot) and (distance == np.min(dist_between_slot_and_neighbours)):
                     distance_to_closest_slot = distance
+                    print("agent ", j, " with slot ", i)
                     neighbours_slot_idx[j] = i
+                    dist_between_slot_and_neighbours[j] = math.inf
 
         for i in range(len(phis)):
             if i not in neighbours_slot_idx:
                 closest_slot_idx = i
+        a = 0
+        for j in range(len(neighbours)):
+            if (current_positions[agent,0] == current_positions[j,0]) and (current_positions[agent,1] == current_positions[j,1]):
+                a = j
+        closest_slot_idx = neighbours_slot_idx[a]
+    print("neighbours_slot_idx", neighbours_slot_idx)
 
+    formation = formation_positions[closest_slot_idx] - current_positions[agent]
+    formation = normalize(formation)
 
-    # if closest_clot_idx is still -1 -> get slot for each neighbour and rm these slots from the formation
-    # choose the closest slot from the remaining slots
+    #return formation
 
     plt.plot(formation_positions[:,0], formation_positions[:,1], marker="o", markersize=10, markeredgecolor="red", markerfacecolor="red", linestyle='None')
 
@@ -180,11 +208,32 @@ if __name__ == '__main__':
     current_positions = np.asarray([[0.5,1.5],[2.5,2.5],[2,0],[0,1],[1,1],[2,1]])
     dist = np.asarray([1,1,1,1,1,1])
 
-    check_for_agent_collisions(0, np.asarray([0.7,0.7]), current_positions, dist)
+    Cx = np.asarray([0.714940619431094, 1.03096052231333])
+    Cy = np.asarray([3.68747049193076, 0.168776678586679])
+    V = np.asarray([0.705948742650580, -0.708262926285194])
+    Rx = 1.41209217603922
+    Ry = 1.06366569275484
 
-    #get_formation_vector(0, current_positions, dist)
-    #get_formation_vector(1, current_positions, dist)
-    #get_formation_vector(2, current_positions, dist)
-    #get_formation_vector(3, current_positions, dist)
-    #get_formation_vector(4, current_positions, dist)
-    #get_formation_vector(5, current_positions, dist)
+    Aa = V[0] ** 2 + V[1] ** 2
+    Bb = 2 * (Cx[0]*V[0] - Cy[0]*V[0] + Cx[1]*V[1] - Cy[1]*V[1])
+    Cc = Cx[0]**2 + Cy[0]**2 + Cx[1]**2 + Cy[1]**2 - (2 * Cx[1] * Cy[1]) - (2 * Cx[0] * Cy[0]) - (Rx + Ry)**2
+
+    roots = np.roots([Aa, Bb, Cc])
+    a = []
+    for i in range(len(roots)):
+        if isinstance(roots[i], complex):
+           continue
+        a.append(roots[i])
+
+    print(np.linalg.norm(Cx-Cy))
+    print(roots)
+
+
+    #check_for_agent_collisions(0, np.asarray([0.7,0.7]), current_positions, dist)
+
+    # get_formation_vector(0, current_positions, dist)
+    # get_formation_vector(1, current_positions, dist)
+    # get_formation_vector(2, current_positions, dist)
+    # get_formation_vector(3, current_positions, dist)
+    # get_formation_vector(4, current_positions, dist)
+    # get_formation_vector(5, current_positions, dist)

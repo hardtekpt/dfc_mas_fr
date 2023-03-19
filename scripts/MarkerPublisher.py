@@ -9,7 +9,10 @@ import matplotlib
 import numpy as np
 from dfc_mas_fr.msg import Map
 
-def pos_circle(p:PoseStamped, id, pub):
+def pos_circle(p:PoseStamped, args):
+
+    pub = args[0]
+    id = args[1]
 
     cf_radius = rospy.get_param("cf_radius")
     noise_std = rospy.get_param("noise_std")
@@ -28,8 +31,8 @@ def pos_circle(p:PoseStamped, id, pub):
     marker.pose.orientation.y = p.pose.orientation.y
     marker.pose.orientation.z = p.pose.orientation.z
     marker.pose.orientation.w = p.pose.orientation.w
-    marker.scale.x = cf_radius + 3 * noise_std
-    marker.scale.y = cf_radius + 3 * noise_std
+    marker.scale.x = 2*(cf_radius + 3 * noise_std)
+    marker.scale.y = 2*(cf_radius + 3 * noise_std)
     marker.scale.z = 0.05
     marker.color.a = 0.6
     marker.color.r = 1.0
@@ -41,8 +44,6 @@ def pos_circle(p:PoseStamped, id, pub):
 def pos_callback(p:PoseStamped, args):
     pub_marker = args[0]
     id = args[1]
-
-    pos_circle(p, id, args[2])
 
     marker = Marker()
     marker.header.frame_id = "map"
@@ -163,7 +164,8 @@ if __name__ == '__main__':
         pubs[i] = rospy.Publisher(pub_topic, Marker, queue_size=10)
         pubs_circle[i] = rospy.Publisher(pub_topic+'_circle', Marker, queue_size=10)
 
-        rospy.Subscriber('/algorithm/'+sys.argv[1]+str(i+1)+'/pose', PoseStamped, pos_callback, ( pubs[i], i+1, pubs_circle[i] ))
+        rospy.Subscriber('/algorithm/'+sys.argv[1]+str(i+1)+'/pose', PoseStamped, pos_callback, ( pubs[i], i+1 ))
+        rospy.Subscriber('/algorithm/'+sys.argv[1]+str(i+1)+'/pose_estimate', PoseStamped, pos_circle, ( pubs_circle[i], i+1 ))
 
     map_pub = rospy.Publisher('/algorithm/map', MarkerArray, queue_size=10)
     rospy.Subscriber('publisher/map', Map, map_update, (map_pub, ))

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
+import message_filters
 import numpy as np
 
 from geometry_msgs.msg import TwistStamped, PoseStamped, Twist, Pose
@@ -14,6 +15,8 @@ class NodeHelper:
         self.SR = SR
         self.id = id
         self.run = False
+        self.aux = -1
+        self.aux2 = -1
 
         self.pos_subs = np.ndarray((n_agents,),rospy.Subscriber)
         self.vel_subs = np.ndarray((n_agents,),rospy.Subscriber)
@@ -26,10 +29,15 @@ class NodeHelper:
             self.pos_subs[i] = rospy.Subscriber('node'+str(i+1)+'/pose', PoseStamped, self.save_pos, (i,))
             self.vel_subs[i] = rospy.Subscriber('node'+str(i+1)+'/twist', TwistStamped, self.save_vel, (i,))
 
+
     def save_pos(self, p:PoseStamped, args):
         
         i = args[0]
         self.curr_pos[i] = p.pose
+        if i == 0:
+            self.aux = p.header.stamp
+        if i == 1:
+            self.aux2 = p.header.stamp
 
     def save_vel(self, v:TwistStamped, args):
 

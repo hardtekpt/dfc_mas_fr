@@ -4,6 +4,7 @@ import rospy
 import numpy as np
 from enum import Enum
 from geometry_msgs.msg import TwistStamped, PoseStamped, Twist, Pose
+from rosgraph_msgs.msg import Clock
 from dfc_mas_fr.srv import Commander
 from dfc_mas_fr.MapUpdateHelper import MapUpdateHelper
 
@@ -22,6 +23,8 @@ class PublisherHelper:
         self.pub_pos = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Publisher)
         self.pub_vel = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Publisher)
         self.cmd_vel_sub = np.ndarray((len(self.swarm.allcfs.crazyflies),),rospy.Subscriber)
+        
+        self.clock_pub = rospy.Publisher('/clock', Clock, queue_size=10)
 
         self.rate = rospy.get_param("publish_rate")
         self.map_handler = MapUpdateHelper()
@@ -81,6 +84,10 @@ class PublisherHelper:
                 self.commander_handler = CH.FLYING
 
             # Sleep for the set rate
+            t = Clock()
+            #print(self.th.time(), time_s, time_ns)
+            t.clock = rospy.Time(self.th.time())
+            self.clock_pub.publish(t)
             self.th.sleepForRate(self.rate)
             ii += 1
     
@@ -105,8 +112,6 @@ class PublisherHelper:
         curr_pos = np.ndarray((len(pub), 3))
 
         for i in range(len(pub)):
-            time_s, time_d = divmod(self.th.time(), 1)
-            time_ns = time_d * 10**9
             cf = self.swarm.allcfs.crazyflies[i]
 
             pose = PoseStamped()
@@ -119,11 +124,13 @@ class PublisherHelper:
             pos.orientation.y = 0
             pos.orientation.z = 1
             pose.pose = pos
-            pose.header.stamp.secs = int(time_s)
-            pose.header.stamp.nsecs = int(time_ns)
+            pose.header.stamp = rospy.Time(self.th.time())
             pose.header.frame_id = "map"
             pub[i].publish(pose)
             curr_pos[i] = [cf.position()[0],cf.position()[1],cf.position()[2]]
+
+            # if i == 0:
+            #     print(i+1, self.th.time(), int(time_s), int(time_ns), cf.position())
 
         return curr_pos
 
