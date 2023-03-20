@@ -67,6 +67,7 @@ def pos_callback(p:PoseStamped, args):
     marker.color.g = 1.0
     marker.color.b = 1.0
     marker.mesh_resource = "package://dfc_mas_fr/meshes/crazyflie2.dae"
+    #marker.mesh_resource = "~/crazyarena/crazyswarm/ros_ws/src/dfc_mas_fr/meshes/crazyflie2.dae"
     marker.mesh_use_embedded_materials = True
     pub_marker.publish(marker)
 
@@ -77,7 +78,7 @@ def publish_map(pub:rospy.Publisher, map:Map):
     map_obj.convert_msg_to_obj(map)
 
     # discretize map 
-    res = 0.8
+    res = rospy.get_param("map_draw_resolution")
     discrete_map = map_obj.discretize_map(res)
 
     # for each cell get color, create marker and add marker to marker array
@@ -146,7 +147,7 @@ def publish_map(pub:rospy.Publisher, map:Map):
     # publish marker array
     pub.publish(marker_array)
     
-def map_update(update_msg:Map, args):
+def map_update(update_msg:Map, map_pub):
 
     publish_map(map_pub, update_msg)
 
@@ -168,19 +169,5 @@ if __name__ == '__main__':
         rospy.Subscriber('/algorithm/'+sys.argv[1]+str(i+1)+'/pose_estimate', PoseStamped, pos_circle, ( pubs_circle[i], i+1 ))
 
     map_pub = rospy.Publisher('/algorithm/map', MarkerArray, queue_size=10)
-    rospy.Subscriber('publisher/map', Map, map_update, (map_pub, ))
-
-    # rospy.wait_for_service('publisher/map_handler')
-    
-    # try:
-    #     get_map = rospy.ServiceProxy('publisher/map_handler', Map)
-    #     resp = get_map()
-    #     map = GradientMap(dimensions=resp.map_dimensions)
-    #     map.convert_srv_to_obj(resp)
-        
-    #     rospy.sleep(1)
-    #     publish_map(map_pub, resp)
-    # except rospy.ServiceException as e:
-    #     print("Service call failed: %s"%e)
-
+    rospy.Subscriber('publisher/map', Map, map_update, map_pub)
     rospy.spin()

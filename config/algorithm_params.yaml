@@ -1,5 +1,5 @@
 number_of_agents: 10
-run_duration: 100
+run_duration: 60
 flying_height: 1
 takeoff_and_land_duration: 3
 agent_sensing_radius: 5
@@ -16,3 +16,4 @@ compute_frequency: 20
 cf_radius: 0.20
 noise_std: 0.05
 publish_rate: 20
+map_draw_resolution: 0.5

@@ -15,8 +15,6 @@ class NodeHelper:
         self.SR = SR
         self.id = id
         self.run = False
-        self.aux = -1
-        self.aux2 = -1
 
         self.pos_subs = np.ndarray((n_agents,),rospy.Subscriber)
         self.vel_subs = np.ndarray((n_agents,),rospy.Subscriber)
@@ -29,15 +27,13 @@ class NodeHelper:
             self.pos_subs[i] = rospy.Subscriber('node'+str(i+1)+'/pose', PoseStamped, self.save_pos, (i,))
             self.vel_subs[i] = rospy.Subscriber('node'+str(i+1)+'/twist', TwistStamped, self.save_vel, (i,))
 
+        self.pub_pos_estimate = rospy.Publisher('node'+str(id)+'/pose_estimate', PoseStamped, queue_size=10)
+
 
     def save_pos(self, p:PoseStamped, args):
         
         i = args[0]
         self.curr_pos[i] = p.pose
-        if i == 0:
-            self.aux = p.header.stamp
-        if i == 1:
-            self.aux2 = p.header.stamp
 
     def save_vel(self, v:TwistStamped, args):
 
@@ -107,9 +103,19 @@ class NodeHelper:
         return corrupted_data
 
     def handle_commander(self, req):
+        
         if req.start:
             self.run = True
         if req.stop:
             self.run = False
         return CommanderResponse(True)
+    
+    def publish_estimated_pos(self, p):
+
+        pose_estimate = PoseStamped()
+        pose_estimate.header.stamp = rospy.Time.now()
+        pose_estimate.pose.position.x = p[0]
+        pose_estimate.pose.position.y = p[1]
+        pose_estimate.pose.position.z = p[2]
+        self.pub_pos_estimate.publish(pose_estimate)
     

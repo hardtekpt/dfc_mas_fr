@@ -165,18 +165,14 @@ class Algorithm:
     def check_for_agent_collisions(self, heading, current_positions: np.ndarray, distribution):
 
         neighbours = np.where(distribution == 1)[0]
-        heading_norm = self.normalize(heading)
+        V = self.normalize(heading)
         max_distance_per_time_step = (self.collision_params['max_speed'] * self.collision_params['time_step_size'])
-        agent_radius = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']
-        neighbour_radius = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std'] + max_distance_per_time_step
+        Rx = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']
+        Ry = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std'] + max_distance_per_time_step
+        Cx = current_positions[self.agent]
         a = []
         for neighbour in neighbours:
-
-            Cx = current_positions[self.agent]
             Cy = current_positions[neighbour]
-            Vv = heading_norm
-            Rx = agent_radius
-            Ry = neighbour_radius
 
             if neighbour == self.agent:
                 continue
@@ -184,32 +180,20 @@ class Algorithm:
             if np.linalg.norm(Cx - Cy) <= Rx + Ry:
                 continue
 
-            Aa = Vv[0] ** 2 + Vv[1] ** 2
-            Bb = 2 * (Cx[0]*Vv[0] - Cy[0]*Vv[0] + Cx[1]*Vv[1] - Cy[1]*Vv[1])
+            Aa = V[0] ** 2 + V[1] ** 2
+            Bb = 2 * (Cx[0]*V[0] - Cy[0]*V[0] + Cx[1]*V[1] - Cy[1]*V[1])
             Cc = Cx[0]**2 + Cy[0]**2 + Cx[1]**2 + Cy[1]**2 - (2 * Cx[1] * Cy[1]) - (2 * Cx[0] * Cy[0]) - (Rx + Ry)**2
-
             roots = np.roots([Aa, Bb, Cc])
-
-            # if(self.agent == 0):
-            #     print(roots, Cx, Cy, Vv, np.linalg.norm(Cx-Cy), rospy.Time.now())
-
             
             for i in range(len(roots)):
-                if isinstance(roots[i], complex) :
+                if isinstance(roots[i], complex) or roots[i] < 0:
                     continue
-                if roots[i] < 0:
-                   continue
-                #    a.append(0)
                 a.append(roots[i])
-
-            # if(self.agent == 0):
-            #     print(self.agent, a)
 
             if len(a) == 0:
                 continue
             
-            #print(heading, heading_norm * (np.min(a) / self.collision_params['time_step_size']))
-            heading = heading_norm * np.min(a)
+            heading = V * np.min(a)
             
 
         return heading
@@ -219,7 +203,7 @@ class Algorithm:
         heading_norm = self.normalize(heading)
         heading_max = heading_norm * self.collision_params['max_speed']
         expected_agent_position = current_positions[self.agent] + heading_max * self.collision_params['time_step_size']
-        overlapping_distance = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std'] +0.1
+        overlapping_distance = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']
 
         for obs in self.map.map['obstacles']:
             if self.map.check_for_obstacle_collision(expected_agent_position, obs, overlapping_distance):
@@ -232,7 +216,7 @@ class Algorithm:
         heading_norm = self.normalize(heading)
         heading_max = heading_norm * self.collision_params['max_speed']
         expected_agent_position = current_positions[self.agent] + heading_max * self.collision_params['time_step_size']
-        overlapping_distance = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std'] +0.1
+        overlapping_distance = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']
 
         if (expected_agent_position[0] + overlapping_distance) > self.map.dimensions[0]:
             return heading * 0
