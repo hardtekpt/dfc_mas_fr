@@ -21,8 +21,8 @@ class MapUpdateHelper:
 
         self.map_update_pub = rospy.Publisher('publisher/map', Map, queue_size=10)
         
-        self.obstacles = True
-        self.dynamic_pos = True
+        self.obstacles = False
+        self.dynamic_pos = False
         self.dynamic_val = False
         self.random_creation_and_destruction_of_hiperboloids = False
         self.map_type = MapUpdateHelper.MAP_TYPE.SINGLE_MAX

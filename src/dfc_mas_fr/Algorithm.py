@@ -36,7 +36,7 @@ class Algorithm:
         heading = cw[0]*separation + cw[1]*cohesion + cw[2]*alignment + cw[3]*attraction + cw[4]*utility + cw[5]*formation + cw[6]*random
         heading_norm = self.normalize(heading)
 
-        new_velocity = current_velocities[self.agent, :] + heading_norm
+        new_velocity = current_velocities[self.agent, :] + heading
 
         return new_velocity
     
@@ -167,8 +167,8 @@ class Algorithm:
         neighbours = np.where(distribution == 1)[0]
         V = self.normalize(heading)
         max_distance_per_time_step = (self.collision_params['max_speed'] * self.collision_params['time_step_size'])
-        Rx = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']
-        Ry = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std'] + max_distance_per_time_step
+        Rx = self.collision_params['cf_radius'] + 6 * self.collision_params['noise_std']
+        Ry = self.collision_params['cf_radius'] + 6 * self.collision_params['noise_std'] + max_distance_per_time_step
         Cx = current_positions[self.agent]
         a = []
         for neighbour in neighbours:
@@ -198,25 +198,69 @@ class Algorithm:
 
         return heading
     
-    def check_for_obstacle_collisions(self, heading, current_positions: np.ndarray):
+    def check_for_obstacle_collisions(self, heading, p: np.ndarray):
     
         heading_norm = self.normalize(heading)
         heading_max = heading_norm * self.collision_params['max_speed']
-        expected_agent_position = current_positions[self.agent] + heading_max * self.collision_params['time_step_size']
-        overlapping_distance = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']
+        expected_agent_position = p + heading_max * self.collision_params['time_step_size']
+        overlapping_distance = self.collision_params['cf_radius'] +  6 * self.collision_params['noise_std']
+        
+        orth_heading = np.array([heading_norm[1], -heading_norm[0]])
+
+        c = np.array([
+            p + orth_heading * overlapping_distance,
+            p - orth_heading * overlapping_distance,
+            expected_agent_position + orth_heading * overlapping_distance,
+            expected_agent_position - orth_heading * overlapping_distance,
+        ])
+
+        line_idxs = np.array([[0,2],[2,3],[3,1],[1,0]])
 
         for obs in self.map.map['obstacles']:
+
+            if self.map.check_for_obstacle_collision(p, obs, overlapping_distance):
+                return heading * 0
+            
+            corners = np.array([[obs['pos'][0], obs['pos'][1]], 
+                   [obs['pos'][0] + obs['size'][0], obs['pos'][1]], 
+                   [obs['pos'][0], obs['pos'][1] + obs['size'][1]], 
+                   [obs['pos'][0] + obs['size'][0], obs['pos'][1] + obs['size'][1]]])
+            
+            obs_line_idxs = np.array([[2,3],[3,1],[1,0],[0,2]])
+
+            for obs_line in obs_line_idxs:
+                p0 = corners[obs_line[0]]
+                p1 = corners[obs_line[1]]
+                for line in line_idxs:
+                    p2 = c[line[0]]
+                    p3 = c[line[1]]
+                    if self.line_intersection(p0,p1,p2,p3):
+                        return heading * 0
+
             if self.map.check_for_obstacle_collision(expected_agent_position, obs, overlapping_distance):
                 return heading * 0
 
         return heading 
+    
+    def line_intersection(self, p0, p1, p2, p3):
 
-    def check_for_boundaries(self, heading, current_positions: np.ndarray):
+        s1 = p1-p0
+        s2 = p3-p2
+
+        s = (-s1[1] * (p0[0] - p2[0]) + s1[0] * (p0[1] - p2[1])) / (-s2[0] * s1[1] + s1[0] * s2[1])
+        t = ( s2[0] * (p0[1] - p2[1]) - s2[1] * (p0[0] - p2[0])) / (-s2[0] * s1[1] + s1[0] * s2[1])
+
+        if (s >= 0) and (s <= 1) and (t >= 0) and (t <= 1):
+            return True
+
+        return False
+
+    def check_for_boundaries(self, heading, p: np.ndarray):
 
         heading_norm = self.normalize(heading)
         heading_max = heading_norm * self.collision_params['max_speed']
-        expected_agent_position = current_positions[self.agent] + heading_max * self.collision_params['time_step_size']
-        overlapping_distance = self.collision_params['cf_radius'] + 3 * self.collision_params['noise_std']
+        expected_agent_position = p + heading_max * self.collision_params['time_step_size']
+        overlapping_distance = self.collision_params['cf_radius'] + 6 * self.collision_params['noise_std']
 
         if (expected_agent_position[0] + overlapping_distance) > self.map.dimensions[0]:
             return heading * 0

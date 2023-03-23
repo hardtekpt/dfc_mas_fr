@@ -1,7 +1,7 @@
 crazyflies:
 - channel: 100
   id: 1
-  initialPosition: [10, 15, 0.0]
+  initialPosition: [2, 19.5, 0.0]
   type: medium
 - channel: 100
   id: 2
@@ -13,7 +13,7 @@ crazyflies:
   type: medium
 - channel: 100
   id: 4
-  initialPosition: [2, 2, 0.0]
+  initialPosition: [3, 2, 0.0]
   type: medium
 - channel: 100
   id: 5
@@ -21,11 +21,11 @@ crazyflies:
   type: medium
 - channel: 100
   id: 6
-  initialPosition: [19, 18, 0.0]
+  initialPosition: [19, 17, 0.0]
   type: medium
 - channel: 100
   id: 7
-  initialPosition: [18, 19, 0.0]
+  initialPosition: [17, 19, 0.0]
   type: medium
 - channel: 100
   id: 8
@@ -37,5 +37,5 @@ crazyflies:
   type: medium
 - channel: 100
   id: 10
-  initialPosition: [19, 2, 0.0]
+  initialPosition: [19, 3, 0.0]
   type: medium

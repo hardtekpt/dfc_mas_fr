@@ -148,6 +148,16 @@ class GradientMap():
         if (position[0] >= obstacle['pos'][0] - margin) and (position[0] <= obstacle['pos'][0] + obstacle['size'][0] + margin):
             if (position[1] >= obstacle['pos'][1] - margin) and (position[1] <= obstacle['pos'][1] + obstacle['size'][1] + margin):
                 return True
+            
+        corners = np.array([[obstacle['pos'][0], obstacle['pos'][1]], 
+                   [obstacle['pos'][0] + obstacle['size'][0], obstacle['pos'][1]], 
+                   [obstacle['pos'][0], obstacle['pos'][1] + obstacle['size'][1]], 
+                   [obstacle['pos'][0] + obstacle['size'][0], obstacle['pos'][1] + obstacle['size'][1]]])
+        
+        for c in corners:
+            if np.linalg.norm(c - position) <= margin:
+                return True
+            
         return False
     
     def convert_obj_to_msg(self):

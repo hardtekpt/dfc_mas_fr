@@ -19,8 +19,18 @@ class NodeHelper:
         self.pos_subs = np.ndarray((n_agents,),rospy.Subscriber)
         self.vel_subs = np.ndarray((n_agents,),rospy.Subscriber)
 
-        self.curr_pos = np.ndarray((n_agents,),Pose)
-        self.curr_vel = np.ndarray((n_agents,),Twist)
+        initial_pos_val = Pose()
+        initial_pos_val.position.x = None
+        initial_pos_val.position.y = None
+        initial_pos_val.position.z = None
+        self.curr_pos = np.full((n_agents,), initial_pos_val, dtype=Pose)
+
+        initial_vel_val = Twist()
+        initial_vel_val.linear.x = None
+        initial_vel_val.linear.y = None
+        initial_vel_val.linear.z = None
+        self.curr_vel = np.full((n_agents,), initial_vel_val, dtype=Twist)
+        
         self.dist = np.zeros((n_agents,))
 
         for i in range(n_agents):
