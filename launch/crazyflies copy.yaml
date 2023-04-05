@@ -1,0 +1,123 @@
+crazyflies:
+- channel: 100
+  id: 1
+  initialPosition: [5, 5, 0.0]
+  type: medium
+- channel: 100
+  id: 2
+  initialPosition: [10, 5, 0.0]
+  type: medium
+- channel: 100
+  id: 3
+  initialPosition: [8, 2, 0.0]
+  type: medium
+- channel: 100
+  id: 4
+  initialPosition: [3, 13, 0.0]
+  type: medium
+- channel: 100
+  id: 5
+  initialPosition: [90, 90, 0.0]
+  type: medium
+- channel: 100
+  id: 6
+  initialPosition: [80, 95, 0.0]
+  type: medium
+- channel: 100
+  id: 7
+  initialPosition: [70, 80, 0.0]
+  type: medium
+- channel: 100
+  id: 8
+  initialPosition: [50, 75, 0.0]
+  type: medium
+- channel: 100
+  id: 9
+  initialPosition: [40, 90, 0.0]
+  type: medium
+- channel: 100
+  id: 10
+  initialPosition: [80, 79, 0.0]
+  type: medium
+
+- channel: 100
+  id: 11
+  initialPosition: [50, 50, 0.0]
+  type: medium
+- channel: 100
+  id: 12
+  initialPosition: [40, 5, 0.0]
+  type: medium
+- channel: 100
+  id: 13
+  initialPosition: [80, 2, 0.0]
+  type: medium
+- channel: 100
+  id: 14
+  initialPosition: [30, 13, 0.0]
+  type: medium
+- channel: 100
+  id: 15
+  initialPosition: [70, 19, 0.0]
+  type: medium
+- channel: 100
+  id: 16
+  initialPosition: [80, 17, 0.0]
+  type: medium
+- channel: 100
+  id: 17
+  initialPosition: [30, 30, 0.0]
+  type: medium
+- channel: 100
+  id: 18
+  initialPosition: [25, 7, 0.0]
+  type: medium
+- channel: 100
+  id: 19
+  initialPosition: [85, 3, 0.0]
+  type: medium
+- channel: 100
+  id: 20
+  initialPosition: [55, 5, 0.0]
+  type: medium
+
+- channel: 100
+  id: 21
+  initialPosition: [5, 50, 0.0]
+  type: medium
+- channel: 100
+  id: 22
+  initialPosition: [10, 80, 0.0]
+  type: medium
+- channel: 100
+  id: 23
+  initialPosition: [8, 20, 0.0]
+  type: medium
+- channel: 100
+  id: 24
+  initialPosition: [3, 65, 0.0]
+  type: medium
+- channel: 100
+  id: 25
+  initialPosition: [19, 30, 0.0]
+  type: medium
+- channel: 100
+  id: 26
+  initialPosition: [19, 50, 0.0]
+  type: medium
+- channel: 100
+  id: 27
+  initialPosition: [17, 60, 0.0]
+  type: medium
+- channel: 100
+  id: 28
+  initialPosition: [6, 70, 0.0]
+  type: medium
+- channel: 100
+  id: 29
+  initialPosition: [19, 10, 0.0]
+  type: medium
+- channel: 100
+  id: 30
+  initialPosition: [14, 50, 0.0]
+  type: medium

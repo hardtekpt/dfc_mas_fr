@@ -15,7 +15,7 @@ class MapUpdateHelper:
 
     INSPECTION_THERESHOLD = 800
 
-    MAP_TYPE = Enum('Map_Type', ['SINGLE_MAX', 'SINGLE_MIN', 'MULTIPLE_MAX_AND_MIN'])
+    MAP_TYPE = Enum('Map_Type', ['SINGLE_MAX', 'SINGLE_MIN', 'MULTIPLE_MAX_AND_MIN', 'BIG_MAP'])
 
     def __init__(self):
 
@@ -32,6 +32,8 @@ class MapUpdateHelper:
     def init_map(self):
         
         map_dimensions = np.asarray([20, 20])
+        if self.map_type == MapUpdateHelper.MAP_TYPE.BIG_MAP:
+            map_dimensions = np.asarray([100, 100])
         map = GradientMap(dimensions=map_dimensions)
 
         if self.map_type == MapUpdateHelper.MAP_TYPE.SINGLE_MAX or self.map_type == MapUpdateHelper.MAP_TYPE.SINGLE_MIN:
@@ -42,7 +44,7 @@ class MapUpdateHelper:
             map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=self.dynamic_val)
 
         if self.map_type == MapUpdateHelper.MAP_TYPE.MULTIPLE_MAX_AND_MIN:
-            hiperboloid_center = np.asarray([2, 5])
+            hiperboloid_center = np.asarray([5, 5])
             hiperboloid_params = np.asarray([2000.0, 3, 3, 15])
             map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=self.dynamic_val)
 
@@ -52,11 +54,28 @@ class MapUpdateHelper:
 
             hiperboloid_center = np.asarray([16, 4])
             hiperboloid_params = np.asarray([-2000.0, 3, 3, 15])
-            map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=self.dynamic_val)
+            map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=False)
 
             hiperboloid_center = np.asarray([8, 18])
             hiperboloid_params = np.asarray([-2000.0, 3, 3, 15])
+            map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=False)
+
+        if self.map_type == MapUpdateHelper.MAP_TYPE.BIG_MAP:
+            hiperboloid_center = np.asarray([25, 25])
+            hiperboloid_params = np.asarray([2000.0, 3, 3, 15])
             map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=self.dynamic_val)
+
+            hiperboloid_center = np.asarray([60, 70])
+            hiperboloid_params = np.asarray([2000.0, 3, 3, 15])
+            map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=self.dynamic_val)
+
+            hiperboloid_center = np.asarray([30, 10])
+            hiperboloid_params = np.asarray([-2000.0, 3, 3, 15])
+            map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=False)
+
+            hiperboloid_center = np.asarray([40, 90])
+            hiperboloid_params = np.asarray([-2000.0, 3, 3, 15])
+            map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=False)
 
         if self.obstacles:
             map.add_obstacle(position=[8.7, 17])
@@ -92,6 +111,10 @@ class MapUpdateHelper:
                 self.get_new_val(h, curr_pos) 
                 if np.abs(self.map.map['hiperboloids'][h]['params'][0]) < MapUpdateHelper.INSPECTION_THERESHOLD:
                     self.map.rm_hiperboloid(h)  
+
+                    hiperboloid_center = np.asarray([np.random.rand()*17, np.random.rand()*17])
+                    hiperboloid_params = np.asarray([2000, 3, 3, 15])
+                    self.map.add_hiperboloid(center=hiperboloid_center, params=hiperboloid_params, d_pos=self.dynamic_pos, d_val=self.dynamic_val) 
                     h -= 1
             h += 1            
         msg = Map()
@@ -103,6 +126,18 @@ class MapUpdateHelper:
         head = np.random.normal(0.2,1,2)
         head /= np.linalg.norm(head)
         self.map.map['hiperboloids'][h]['center'] =  self.map.map['hiperboloids'][h]['center'] + head * MapUpdateHelper.MAX_DISTANCE_PER_TIME_STEP
+
+        if self.map.map['hiperboloids'][h]['center'][0] < 3:
+            self.map.map['hiperboloids'][h]['center'][0] = 3
+
+        if self.map.map['hiperboloids'][h]['center'][0] > 17:
+            self.map.map['hiperboloids'][h]['center'][0] = 17
+
+        if self.map.map['hiperboloids'][h]['center'][1] < 3:
+            self.map.map['hiperboloids'][h]['center'][1] = 3
+
+        if self.map.map['hiperboloids'][h]['center'][1] > 17:
+            self.map.map['hiperboloids'][h]['center'][1] = 17
 
     def get_new_val(self, h, curr_pos):
         for p in curr_pos:

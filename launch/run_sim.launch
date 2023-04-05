@@ -60,6 +60,108 @@
             <arg name="sim" value="$(arg sim)"/>
         </include>
 
+        <!-- <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node11"/>
+            <arg name="id" value="11"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node12"/>
+            <arg name="id" value="12"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node13"/>
+            <arg name="id" value="13"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node14"/>
+            <arg name="id" value="14"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node15"/>
+            <arg name="id" value="15"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node16"/>
+            <arg name="id" value="16"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node17"/>
+            <arg name="id" value="17"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node18"/>
+            <arg name="id" value="18"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node19"/>
+            <arg name="id" value="19"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node20"/>
+            <arg name="id" value="20"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node21"/>
+            <arg name="id" value="21"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node22"/>
+            <arg name="id" value="22"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node23"/>
+            <arg name="id" value="23"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node24"/>
+            <arg name="id" value="24"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node25"/>
+            <arg name="id" value="25"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node26"/>
+            <arg name="id" value="26"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node27"/>
+            <arg name="id" value="27"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node28"/>
+            <arg name="id" value="28"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node29"/>
+            <arg name="id" value="29"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include>
+        <include file="$(find dfc_mas_fr)/launch/node.launch">
+            <arg name="name" value="node30"/>
+            <arg name="id" value="30"/>
+            <arg name="sim" value="$(arg sim)"/>
+        </include> -->
+
         
         <node pkg="dfc_mas_fr" type="MarkerPublisher.py" name="marker_publisher" output="screen" args="node"/>
 

@@ -11,7 +11,7 @@ class GradientMap():
 
     DRAW_RESOLUTION = 0.05
 
-    RENDEZVOUS_AREA_INSPECTION_MINIMUM_DISTANCE = 2
+    RENDEZVOUS_AREA_INSPECTION_MINIMUM_DISTANCE = 5
 
     def __init__(self, dimensions:np.ndarray((2,)) = np.asarray([4, 7])):
         
